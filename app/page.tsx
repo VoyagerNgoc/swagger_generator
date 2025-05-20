@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { enhancePrompt, generateSwaggerAPI, sendSwaggerToN8n } from "./actions"
-import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send } from "lucide-react"
+import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw } from "lucide-react"
 import SuggestionLabels from "@/components/suggestion-labels"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
@@ -49,6 +49,7 @@ export default function Home() {
       setEditedPrompt(enhanced)
       setShowPromptInput(false)
       toast({
+        variant: "success",
         title: "Success",
         description: "Prompt enhanced successfully",
       })
@@ -71,6 +72,7 @@ export default function Home() {
       const swagger = await generateSwaggerAPI(enhancedPrompt)
       setSwaggerSpec(swagger)
       toast({
+        variant: "success",
         title: "Success",
         description: "Swagger API specification generated successfully",
       })
@@ -95,6 +97,7 @@ export default function Home() {
 
       if (result.success) {
         toast({
+          variant: "success",
           title: "Success",
           description: result.message,
         })
@@ -121,18 +124,23 @@ export default function Home() {
     setIsEditing(true)
   }
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     setEnhancedPrompt(editedPrompt)
     setIsEditing(false)
     toast({
+      variant: "info",
       title: "Info",
-      description: "Changes saved",
+      description: "Changes saved, generating Swagger...",
     })
+
+    // Automatically generate Swagger after saving edits
+    await handleGenerateSwagger()
   }
 
   const handleSuggestionClick = (suggestion: string) => {
     setUserPrompt(suggestion)
     toast({
+      variant: "info",
       title: "Info",
       description: "Suggestion applied",
     })
@@ -149,6 +157,7 @@ export default function Home() {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     toast({
+      variant: "success",
       title: "Success",
       description: "Swagger specification downloaded",
     })
@@ -157,6 +166,7 @@ export default function Home() {
   const handleCopySwagger = () => {
     navigator.clipboard.writeText(swaggerSpec)
     toast({
+      variant: "success",
       title: "Success",
       description: "Swagger specification copied to clipboard",
     })
@@ -226,28 +236,34 @@ export default function Home() {
                 {enhancedPrompt}
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleEdit} disabled={isGeneratingSwagger}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
+            <CardFooter className="flex justify-between gap-2">
+              <Button variant="outline" onClick={handleReset}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Start Over
               </Button>
-              <Button
-                onClick={handleGenerateSwagger}
-                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
-                disabled={isGeneratingSwagger}
-              >
-                {isGeneratingSwagger ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Swagger...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Generate Swagger API
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleEdit} disabled={isGeneratingSwagger}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+                <Button
+                  onClick={handleGenerateSwagger}
+                  className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+                  disabled={isGeneratingSwagger}
+                >
+                  {isGeneratingSwagger ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating Swagger...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Generate Swagger API
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardFooter>
           </Card>
         )}
@@ -265,13 +281,17 @@ export default function Home() {
                 className="min-h-[150px] bg-white dark:bg-gray-800"
               />
             </CardContent>
-            <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" onClick={handleReset}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Start Over
+              </Button>
               <Button
                 onClick={handleSaveEdit}
                 className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
               >
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                Save & Generate Swagger
               </Button>
             </CardFooter>
           </Card>
@@ -321,6 +341,7 @@ export default function Home() {
                     onClick={handleReset}
                     className="bg-white/20 hover:bg-white/30 text-white border-white/20"
                   >
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     Start Over
                   </Button>
                 </div>

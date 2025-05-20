@@ -5,14 +5,11 @@ interface SuggestionLabelsProps {
 }
 
 const suggestions = [
+  "Create a TODO app for management daily tasks and review done tasks",
   "Create a React component for a responsive navigation bar with dropdown menus",
   "Generate a Node.js API endpoint for user authentication with JWT",
   "Build a data table component with sorting and filtering capabilities",
   "Create a form validation utility using Zod and React Hook Form",
-  "Design a custom hook for fetching and caching API data",
-  "Generate a serverless function for processing image uploads",
-  "Create a Next.js API route for connecting to a database",
-  "Build a state management solution using React Context and useReducer",
 ]
 
 export default function SuggestionLabels({ onSuggestionClick }: SuggestionLabelsProps) {
