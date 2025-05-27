@@ -113,6 +113,7 @@ export async function generateSwaggerAPI(enhancedPrompt: string): Promise<string
         apiKey: anthropicKey,
       })
 
+      // Updated to use the correct model name
       const response = await anthropic.messages.create({
         model: "claude-3-haiku-20240307",
         max_tokens: 4096,
@@ -181,7 +182,7 @@ Return ONLY the OpenAPI specification in YAML format, without any explanations, 
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
-        temperature: 0.2,
+        temperature: 0.2, // Lower temperature for more precise output
         max_tokens: 4000,
         messages: [
           {
@@ -303,5 +304,170 @@ export async function sendSwaggerToN8n(swaggerSpec: string): Promise<{ success: 
       success: false,
       message: `Failed to send Swagger to n8n: ${error instanceof Error ? error.message : "Unknown error"}`,
     }
+  }
+}
+
+export interface CodeGenJob {
+  id: string
+  status: "pending" | "running" | "completed" | "failed"
+  type: "backend" | "frontend"
+  createdAt: string
+  completedAt?: string
+  pullRequestUrl?: string
+  repositoryUrl?: string
+  error?: string
+  progress?: number
+}
+
+export async function generateCodeWithCodeGen(swaggerSpec: string): Promise<{
+  success: boolean
+  message: string
+  backendJobId?: string
+  frontendJobId?: string
+}> {
+  const apiKey = process.env.CODEGEN_API_KEY
+  const orgId = process.env.CODEGEN_ORG_ID
+
+  if (!apiKey) {
+    throw new Error("CodeGen API key is not configured. Please add CODEGEN_API_KEY environment variable.")
+  }
+
+  if (!orgId) {
+    throw new Error("CodeGen Org ID is not configured. Please add CODEGEN_ORG_ID environment variable.")
+  }
+
+  try {
+    // Call the backend generation API
+    const backendPrompt = "Generate a basic Node.js Express API with a GET /health endpoint."
+
+    const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        prompt: backendPrompt,
+      }),
+    })
+
+    if (!backendResponse.ok) {
+      const errorText = await backendResponse.text()
+      throw new Error(`Backend generation API responded with status: ${backendResponse.status}. Details: ${errorText}`)
+    }
+
+    const backendData = await backendResponse.json()
+    const backendJobId = backendData.jobId || backendData.id || backendData.runId || "unknown"
+
+    // Call the frontend generation API
+    const frontendPrompt = `Generate a complete, professional-grade NuxtJS front-end application based on the Swagger specification provided below. The application should include fully functional UI pages for all available API endpoints, using modern design best practices (e.g., responsive layout, clean UI/UX, reusable components, modular structure) and setup dockerFile, docker-compose. Please include full routing, state management (e.g., Pinia), and API integration logic using axios or composables. Use Tailwind CSS for styling. This is swagger document:
+${swaggerSpec}`
+
+    const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        prompt: frontendPrompt,
+      }),
+    })
+
+    if (!frontendResponse.ok) {
+      const errorText = await frontendResponse.text()
+      throw new Error(
+        `Frontend generation API responded with status: ${frontendResponse.status}. Details: ${errorText}`,
+      )
+    }
+
+    const frontendData = await frontendResponse.json()
+    const frontendJobId = frontendData.jobId || frontendData.id || frontendData.runId || "unknown"
+
+    return {
+      success: true,
+      message: "Code generation jobs submitted successfully to CodeGen API",
+      backendJobId,
+      frontendJobId,
+    }
+  } catch (error) {
+    console.error("Error submitting to CodeGen API:", error)
+    return {
+      success: false,
+      message: `Failed to submit to CodeGen API: ${error instanceof Error ? error.message : "Unknown error"}`,
+    }
+  }
+}
+
+export async function checkCodeGenJobStatus(jobId: string): Promise<CodeGenJob | null> {
+  const apiKey = process.env.CODEGEN_API_KEY
+  const orgId = process.env.CODEGEN_ORG_ID
+
+  if (!apiKey) {
+    throw new Error("CodeGen API key is not configured.")
+  }
+
+  if (!orgId) {
+    throw new Error("CodeGen Org ID is not configured.")
+  }
+
+  try {
+    const response = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/runs/${jobId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+    })
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null
+      }
+      const errorText = await response.text()
+      throw new Error(`Job status API responded with status: ${response.status}. Details: ${errorText}`)
+    }
+
+    const data = await response.json()
+
+    // Map the API response to our CodeGenJob interface
+    return {
+      id: jobId,
+      status: mapApiStatusToJobStatus(data.status),
+      type: data.type || "backend", // Default to backend if not specified
+      createdAt: data.createdAt || data.created_at || new Date().toISOString(),
+      completedAt: data.completedAt || data.completed_at,
+      pullRequestUrl: data.pullRequestUrl || data.pull_request_url || data.pr_url,
+      repositoryUrl: data.repositoryUrl || data.repository_url || data.repo_url,
+      error: data.error || data.errorMessage,
+      progress: data.progress || (data.status === "completed" ? 100 : data.status === "running" ? 50 : 0),
+    }
+  } catch (error) {
+    console.error("Error checking job status:", error)
+    throw new Error(`Failed to check job status: ${error instanceof Error ? error.message : "Unknown error"}`)
+  }
+}
+
+function mapApiStatusToJobStatus(apiStatus: string): "pending" | "running" | "completed" | "failed" {
+  switch (apiStatus?.toLowerCase()) {
+    case "pending":
+    case "queued":
+    case "waiting":
+      return "pending"
+    case "running":
+    case "in_progress":
+    case "processing":
+      return "running"
+    case "completed":
+    case "success":
+    case "finished":
+    case "done":
+      return "completed"
+    case "failed":
+    case "error":
+    case "cancelled":
+      return "failed"
+    default:
+      return "pending"
   }
 }
