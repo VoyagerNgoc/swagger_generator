@@ -172,13 +172,41 @@ export default function Home() {
     })
   }
 
-  const handleCopySwagger = () => {
-    navigator.clipboard.writeText(swaggerSpec)
-    toast({
-      variant: "success",
-      title: "Success",
-      description: "Swagger specification copied to clipboard",
-    })
+  const handleCopySwagger = async () => {
+    try {
+      await navigator.clipboard.writeText(swaggerSpec)
+      toast({
+        variant: "success",
+        title: "Success",
+        description: "Swagger specification copied to clipboard",
+      })
+    } catch (error) {
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement("textarea")
+        textArea.value = swaggerSpec
+        textArea.style.position = "fixed"
+        textArea.style.left = "-999999px"
+        textArea.style.top = "-999999px"
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        document.execCommand("copy")
+        document.body.removeChild(textArea)
+
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Swagger specification copied to clipboard",
+        })
+      } catch (fallbackError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to copy to clipboard. Please copy manually.",
+        })
+      }
+    }
   }
 
   const handleReset = () => {
@@ -387,23 +415,26 @@ export default function Home() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-white drop-shadow-sm">Generated Swagger API Specification</h2>
               <div className="flex flex-wrap gap-2 items-center">
-                <Button
-                  onClick={handleSendToN8n}
-                  disabled={isSendingToN8n}
-                  className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium px-5 py-2 shadow-md"
-                >
-                  {isSendingToN8n ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-5 w-5" />
-                      Send to n8n
-                    </>
-                  )}
-                </Button>
+                {/* Hidden n8n button - keeping the function for potential future use */}
+                {false && (
+                  <Button
+                    onClick={handleSendToN8n}
+                    disabled={isSendingToN8n}
+                    className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium px-5 py-2 shadow-md"
+                  >
+                    {isSendingToN8n ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-5 w-5" />
+                        Send to n8n
+                      </>
+                    )}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={handleCopySwagger}

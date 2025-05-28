@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Github, Plus, X } from "lucide-react"
+import { Github, Plus, X, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Repository {
@@ -30,17 +30,65 @@ export default function GitHubRepoSelector({ label, value, onChange, disabled }:
   const [manualRepo, setManualRepo] = useState("")
   const [githubToken, setGithubToken] = useState("")
   const [hasToken, setHasToken] = useState(false)
+  const [isAutoConnected, setIsAutoConnected] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
-    // Check if GitHub token is available in localStorage
-    const token = localStorage.getItem("github_token")
-    if (token) {
-      setGithubToken(token)
-      setHasToken(true)
-      fetchRepositories(token)
-    }
+    // First check if there's an environment variable token
+    checkEnvironmentToken()
   }, [])
+
+  const checkEnvironmentToken = async () => {
+    try {
+      // Check if server has GITHUB_ACCESS_TOKEN
+      const response = await fetch("/api/github-token")
+      if (response.ok) {
+        const data = await response.json()
+        if (data.hasToken) {
+          setIsAutoConnected(true)
+          setHasToken(true)
+          fetchRepositoriesFromServer()
+          toast({
+            variant: "success",
+            title: "GitHub Connected",
+            description: "Automatically connected using environment token",
+          })
+          return
+        }
+      }
+    } catch (error) {
+      console.log("No environment token available, checking localStorage")
+    }
+
+    // Fallback to localStorage token
+    const localToken = localStorage.getItem("github_token")
+    if (localToken) {
+      setGithubToken(localToken)
+      setHasToken(true)
+      fetchRepositories(localToken)
+    }
+  }
+
+  const fetchRepositoriesFromServer = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/github-repos")
+      if (!response.ok) {
+        throw new Error("Failed to fetch repositories from server")
+      }
+      const repos = await response.json()
+      setRepositories(repos)
+    } catch (error) {
+      console.error("Error fetching repositories from server:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch GitHub repositories from server.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const fetchRepositories = async (token: string) => {
     setIsLoading(true)
@@ -96,6 +144,15 @@ export default function GitHubRepoSelector({ label, value, onChange, disabled }:
   }
 
   const clearToken = () => {
+    if (isAutoConnected) {
+      toast({
+        variant: "info",
+        title: "Info",
+        description: "Cannot disconnect environment token. Remove GITHUB_ACCESS_TOKEN from environment variables.",
+      })
+      return
+    }
+
     localStorage.removeItem("github_token")
     setGithubToken("")
     setHasToken(false)
@@ -155,10 +212,18 @@ export default function GitHubRepoSelector({ label, value, onChange, disabled }:
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label>{label}</Label>
-        <Button size="sm" variant="ghost" onClick={clearToken} disabled={disabled}>
+        <Label className="flex items-center gap-2">
+          {label}
+          {isAutoConnected && (
+            <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+              <CheckCircle className="h-3 w-3" />
+              Auto-connected
+            </span>
+          )}
+        </Label>
+        <Button size="sm" variant="ghost" onClick={clearToken} disabled={disabled || isAutoConnected}>
           <X className="h-4 w-4 mr-1" />
-          Disconnect
+          {isAutoConnected ? "Environment" : "Disconnect"}
         </Button>
       </div>
       <Select value={value} onValueChange={onChange} disabled={disabled || isLoading}>
