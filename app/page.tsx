@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { enhancePrompt, generateSwaggerAPI, sendSwaggerToN8n, generateCodeWithCodeGen } from "./actions"
-import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw, Code } from "lucide-react"
+import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw } from "lucide-react"
 import SuggestionLabels from "@/components/suggestion-labels"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 import SwaggerDisplay from "@/components/swagger-display"
 import CodeGenJobTracker from "@/components/codegen-job-tracker"
+import FrameworkSelector from "@/components/framework-selector"
 
 export default function Home() {
   const [userPrompt, setUserPrompt] = useState("")
@@ -28,6 +29,11 @@ export default function Home() {
   const { toast } = useToast()
   const [isSubmittingToCodeGen, setIsSubmittingToCodeGen] = useState(false)
   const [codeGenJobIds, setCodeGenJobIds] = useState<{ backend?: string; frontend?: string } | null>(null)
+  const [backendFramework, setBackendFramework] = useState("Ruby on Rails")
+  const [frontendFramework, setFrontendFramework] = useState("Next.js")
+  const [backendRepo, setBackendRepo] = useState("")
+  const [frontendRepo, setFrontendRepo] = useState("")
+  const [hasSubmittedToCodeGen, setHasSubmittedToCodeGen] = useState(false)
 
   useEffect(() => {
     // Check which AI provider is being used
@@ -182,13 +188,24 @@ export default function Home() {
     setShowPromptInput(true)
     setIsEditing(false)
     setCodeGenJobIds(null)
+    setHasSubmittedToCodeGen(false)
+    setBackendFramework("Ruby on Rails")
+    setFrontendFramework("Next.js")
+    setBackendRepo("")
+    setFrontendRepo("")
   }
 
   const handleSubmitToCodeGen = async () => {
     setIsSubmittingToCodeGen(true)
+    setHasSubmittedToCodeGen(true)
 
     try {
-      const result = await generateCodeWithCodeGen(swaggerSpec)
+      const result = await generateCodeWithCodeGen(swaggerSpec, {
+        backend: backendFramework,
+        frontend: frontendFramework,
+        backendRepo: backendRepo,
+        frontendRepo: frontendRepo,
+      })
 
       if (result.success) {
         setCodeGenJobIds({
@@ -206,6 +223,7 @@ export default function Home() {
           title: "Error",
           description: result.message,
         })
+        setHasSubmittedToCodeGen(false)
       }
     } catch (error) {
       console.error("Error submitting to CodeGen API:", error)
@@ -214,6 +232,7 @@ export default function Home() {
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred while submitting to CodeGen API",
       })
+      setHasSubmittedToCodeGen(false)
     } finally {
       setIsSubmittingToCodeGen(false)
     }
@@ -225,9 +244,19 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      <main className="container mx-auto py-12 px-4 max-w-4xl relative z-0">
+      <main className="container mx-auto py-12 px-4 max-w-6xl relative z-0">
         <h1 className="text-4xl font-bold mb-2 text-center text-white drop-shadow-md">Voyager Generator AI</h1>
         {aiProvider && <p className="text-center text-white/80 text-sm mb-8">Powered by Voyager INC</p>}
+
+        {/* CodeGen Job Status - Show at top after submission */}
+        {codeGenJobIds && (
+          <CodeGenJobTracker
+            backendJobId={codeGenJobIds.backend}
+            frontendJobId={codeGenJobIds.frontend}
+            backendFramework={backendFramework}
+            frontendFramework={frontendFramework}
+          />
+        )}
 
         {showPromptInput && !enhancedPrompt && (
           <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
@@ -336,28 +365,28 @@ export default function Home() {
           </Card>
         )}
 
+        {/* Framework Selection - Show after Swagger is generated */}
+        {swaggerSpec && !hasSubmittedToCodeGen && (
+          <FrameworkSelector
+            backendFramework={backendFramework}
+            frontendFramework={frontendFramework}
+            backendRepo={backendRepo}
+            frontendRepo={frontendRepo}
+            onBackendChange={setBackendFramework}
+            onFrontendChange={setFrontendFramework}
+            onBackendRepoChange={setBackendRepo}
+            onFrontendRepoChange={setFrontendRepo}
+            onSubmit={handleSubmitToCodeGen}
+            isSubmitting={isSubmittingToCodeGen}
+            disabled={hasSubmittedToCodeGen}
+          />
+        )}
+
         {swaggerSpec && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-white drop-shadow-sm">Generated Swagger API Specification</h2>
               <div className="flex flex-wrap gap-2 items-center">
-                <Button
-                  onClick={handleSubmitToCodeGen}
-                  disabled={isSubmittingToCodeGen}
-                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-medium px-5 py-2 shadow-md"
-                >
-                  {isSubmittingToCodeGen ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Submitting to CodeGen...
-                    </>
-                  ) : (
-                    <>
-                      <Code className="mr-2 h-5 w-5" />
-                      Submit to CodeGen API
-                    </>
-                  )}
-                </Button>
                 <Button
                   onClick={handleSendToN8n}
                   disabled={isSendingToN8n}
@@ -403,10 +432,6 @@ export default function Home() {
             </div>
             <SwaggerDisplay yamlContent={swaggerSpec} />
           </div>
-        )}
-
-        {codeGenJobIds && (
-          <CodeGenJobTracker backendJobId={codeGenJobIds.backend} frontendJobId={codeGenJobIds.frontend} />
         )}
 
         {!swaggerSpec && (

@@ -2,6 +2,7 @@
 
 import { OpenAI } from "openai"
 import { Anthropic } from "@anthropic-ai/sdk"
+import { BASE_PROMPTS, FRAMEWORK_CONFIGS, type FrameworkOptions, type CodeGenJob } from "@/lib/constants"
 
 export async function enhancePrompt(userPrompt: string): Promise<string> {
   // Check which API keys are available
@@ -307,19 +308,44 @@ export async function sendSwaggerToN8n(swaggerSpec: string): Promise<{ success: 
   }
 }
 
-export interface CodeGenJob {
-  id: string
-  status: "pending" | "running" | "completed" | "failed"
-  type: "backend" | "frontend"
-  createdAt: string
-  completedAt?: string
-  pullRequestUrl?: string
-  repositoryUrl?: string
-  error?: string
-  progress?: number
+function generatePrompt(
+  type: "backend" | "frontend",
+  framework: string,
+  swaggerSpec: string,
+  repository?: string,
+): string {
+  const config = FRAMEWORK_CONFIGS[type][framework]
+  const basePrompt = BASE_PROMPTS[type]
+
+  if (!config) {
+    throw new Error(`Unsupported ${type} framework: ${framework}`)
+  }
+
+  const repositoryInstruction = repository
+    ? `
+
+REPOSITORY CONFIGURATION:
+- Target repository: ${repository}
+- Create a pull request to this repository with all the generated code
+- Follow the repository's existing structure and conventions if any
+- Include proper commit messages and PR description
+- Ensure all files are properly organized in the repository structure`
+    : ""
+
+  const featuresText = config.features.length > 0 ? `\n- ${config.features.join("\n- ")}` : ""
+
+  return `${basePrompt.prefix} ${config.name} ${basePrompt.suffix}
+
+FRAMEWORK-SPECIFIC FEATURES:${featuresText}${repositoryInstruction}
+
+SWAGGER SPECIFICATION:
+${swaggerSpec}`
 }
 
-export async function generateCodeWithCodeGen(swaggerSpec: string): Promise<{
+export async function generateCodeWithCodeGen(
+  swaggerSpec: string,
+  frameworks: FrameworkOptions,
+): Promise<{
   success: boolean
   message: string
   backendJobId?: string
@@ -337,8 +363,8 @@ export async function generateCodeWithCodeGen(swaggerSpec: string): Promise<{
   }
 
   try {
-    // Call the backend generation API
-    const backendPrompt = "Generate a basic Node.js Express API with a GET /health endpoint."
+    // Generate backend prompt
+    const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.backendRepo)
 
     const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
       method: "POST",
@@ -359,9 +385,8 @@ export async function generateCodeWithCodeGen(swaggerSpec: string): Promise<{
     const backendData = await backendResponse.json()
     const backendJobId = backendData.jobId || backendData.id || backendData.runId || "unknown"
 
-    // Call the frontend generation API
-    const frontendPrompt = `Generate a complete, professional-grade NuxtJS front-end application based on the Swagger specification provided below. The application should include fully functional UI pages for all available API endpoints, using modern design best practices (e.g., responsive layout, clean UI/UX, reusable components, modular structure) and setup dockerFile, docker-compose. Please include full routing, state management (e.g., Pinia), and API integration logic using axios or composables. Use Tailwind CSS for styling. This is swagger document:
-${swaggerSpec}`
+    // Generate frontend prompt
+    const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, frameworks.frontendRepo)
 
     const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
       method: "POST",
@@ -448,12 +473,12 @@ export async function checkCodeGenJobStatus(jobId: string): Promise<CodeGenJob |
   }
 }
 
-function mapApiStatusToJobStatus(apiStatus: string): "pending" | "running" | "completed" | "failed" {
+function mapApiStatusToJobStatus(apiStatus: string): "loading_processing" | "running" | "completed" | "failed" {
   switch (apiStatus?.toLowerCase()) {
     case "pending":
     case "queued":
     case "waiting":
-      return "pending"
+      return "loading_processing"
     case "running":
     case "in_progress":
     case "processing":
@@ -468,6 +493,6 @@ function mapApiStatusToJobStatus(apiStatus: string): "pending" | "running" | "co
     case "cancelled":
       return "failed"
     default:
-      return "pending"
+      return "loading_processing"
   }
 }

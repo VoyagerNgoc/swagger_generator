@@ -12,9 +12,16 @@ import { useToast } from "@/hooks/use-toast"
 interface CodeGenJobTrackerProps {
   backendJobId?: string
   frontendJobId?: string
+  backendFramework?: string
+  frontendFramework?: string
 }
 
-export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeGenJobTrackerProps) {
+export default function CodeGenJobTracker({
+  backendJobId,
+  frontendJobId,
+  backendFramework,
+  frontendFramework,
+}: CodeGenJobTrackerProps) {
   const [backendJob, setBackendJob] = useState<CodeGenJob | null>(null)
   const [frontendJob, setFrontendJob] = useState<CodeGenJob | null>(null)
   const [isPolling, setIsPolling] = useState(true)
@@ -28,14 +35,14 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
         if (backendJobId) {
           const backendStatus = await checkCodeGenJobStatus(backendJobId)
           if (backendStatus) {
-            setBackendJob(backendStatus)
+            setBackendJob({ ...backendStatus, framework: backendFramework })
           }
         }
 
         if (frontendJobId) {
           const frontendStatus = await checkCodeGenJobStatus(frontendJobId)
           if (frontendStatus) {
-            setFrontendJob(frontendStatus)
+            setFrontendJob({ ...frontendStatus, framework: frontendFramework })
           }
         }
       } catch (error) {
@@ -66,12 +73,12 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
     }, 5000) // Poll every 5 seconds
 
     return () => clearInterval(interval)
-  }, [backendJobId, frontendJobId, toast])
+  }, [backendJobId, frontendJobId, backendFramework, frontendFramework, toast])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4" />
+      case "loading_processing":
+        return <Loader2 className="h-4 w-4 animate-spin" />
       case "running":
         return <Loader2 className="h-4 w-4 animate-spin" />
       case "completed":
@@ -85,7 +92,7 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "loading_processing":
         return "secondary"
       case "running":
         return "default"
@@ -95,6 +102,21 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
         return "destructive"
       default:
         return "secondary"
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "loading_processing":
+        return "Processing"
+      case "running":
+        return "Running"
+      case "completed":
+        return "Completed"
+      case "failed":
+        return "Failed"
+      default:
+        return "Processing"
     }
   }
 
@@ -111,7 +133,7 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
   if (!backendJobId && !frontendJobId) return null
 
   return (
-    <Card className="mt-4 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
+    <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <GitPullRequest className="h-5 w-5" />
@@ -119,14 +141,17 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
         </CardTitle>
         <CardDescription>Track the progress of your code generation jobs</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {backendJobId && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">Backend (Ruby on Rails)</h4>
-              <Badge variant={getStatusColor(backendJob?.status || "pending")} className="flex items-center gap-1">
-                {getStatusIcon(backendJob?.status || "pending")}
-                {backendJob?.status || "pending"}
+              <h4 className="font-medium">Backend ({backendFramework || "Ruby on Rails"})</h4>
+              <Badge
+                variant={getStatusColor(backendJob?.status || "loading_processing")}
+                className="flex items-center gap-1"
+              >
+                {getStatusIcon(backendJob?.status || "loading_processing")}
+                {getStatusLabel(backendJob?.status || "loading_processing")}
               </Badge>
             </div>
 
@@ -175,10 +200,13 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
         {frontendJobId && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">Frontend (NuxtJS)</h4>
-              <Badge variant={getStatusColor(frontendJob?.status || "pending")} className="flex items-center gap-1">
-                {getStatusIcon(frontendJob?.status || "pending")}
-                {frontendJob?.status || "pending"}
+              <h4 className="font-medium">Frontend ({frontendFramework || "NuxtJS"})</h4>
+              <Badge
+                variant={getStatusColor(frontendJob?.status || "loading_processing")}
+                className="flex items-center gap-1"
+              >
+                {getStatusIcon(frontendJob?.status || "loading_processing")}
+                {getStatusLabel(frontendJob?.status || "loading_processing")}
               </Badge>
             </div>
 
@@ -221,13 +249,6 @@ export default function CodeGenJobTracker({ backendJobId, frontendJobId }: CodeG
             )}
 
             <div className="text-xs text-muted-foreground">Job ID: {frontendJobId}</div>
-          </div>
-        )}
-
-        {isPolling && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Checking status every 5 seconds...
           </div>
         )}
       </CardContent>
