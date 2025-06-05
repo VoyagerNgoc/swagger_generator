@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { enhancePrompt, generateSwaggerAPI, sendSwaggerToN8n, generateCodeWithCodeGen } from "./actions"
-import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw } from "lucide-react"
+import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw, Upload } from "lucide-react"
 import SuggestionLabels from "@/components/suggestion-labels"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
 import SwaggerDisplay from "@/components/swagger-display"
 import CodeGenJobTracker from "@/components/codegen-job-tracker"
 import FrameworkSelector from "@/components/framework-selector"
+import SwaggerUploader from "@/components/swagger-uploader"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function Home() {
   const [userPrompt, setUserPrompt] = useState("")
@@ -34,6 +36,7 @@ export default function Home() {
   const [backendRepo, setBackendRepo] = useState("")
   const [frontendRepo, setFrontendRepo] = useState("")
   const [hasSubmittedToCodeGen, setHasSubmittedToCodeGen] = useState(false)
+  const [swaggerMode, setSwaggerMode] = useState<"generate" | "upload">("generate")
 
   useEffect(() => {
     // Check which AI provider is being used
@@ -221,6 +224,7 @@ export default function Home() {
     setFrontendFramework("Next.js")
     setBackendRepo("")
     setFrontendRepo("")
+    setSwaggerMode("generate")
   }
 
   const handleSubmitToCodeGen = async () => {
@@ -266,6 +270,11 @@ export default function Home() {
     }
   }
 
+  const handleSwaggerLoaded = (swagger: string) => {
+    setSwaggerSpec(swagger)
+    setShowPromptInput(false)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-blue">
       <div className="absolute top-4 right-4 z-10">
@@ -286,39 +295,62 @@ export default function Home() {
           />
         )}
 
-        {showPromptInput && !enhancedPrompt && (
-          <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Enter Your Prompt</CardTitle>
-              <CardDescription>
-                Please describe your request (the more clearly you specify the features, the better)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit}>
-                <Textarea
-                  placeholder="Enter your prompt here..."
-                  value={userPrompt}
-                  onChange={(e) => setUserPrompt(e.target.value)}
-                  className="min-h-[120px] mb-4 bg-white dark:bg-gray-800"
-                />
-                <Button
-                  type="submit"
-                  disabled={isLoading || !userPrompt.trim()}
-                  className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    "Send"
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        {showPromptInput && !enhancedPrompt && !swaggerSpec && (
+          <Tabs
+            defaultValue="generate"
+            value={swaggerMode}
+            onValueChange={(value) => setSwaggerMode(value as "generate" | "upload")}
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-4 max-w-md mx-auto">
+              <TabsTrigger value="generate" className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Generate Swagger
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Upload Swagger
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="generate">
+              <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Enter Your Prompt</CardTitle>
+                  <CardDescription>
+                    Please describe your request (the more clearly you specify the features, the better)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit}>
+                    <Textarea
+                      placeholder="Enter your prompt here..."
+                      value={userPrompt}
+                      onChange={(e) => setUserPrompt(e.target.value)}
+                      className="min-h-[120px] mb-4 bg-white dark:bg-gray-800"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={isLoading || !userPrompt.trim()}
+                      className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        "Send"
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="upload">
+              <SwaggerUploader onSwaggerLoaded={handleSwaggerLoaded} />
+            </TabsContent>
+          </Tabs>
         )}
 
         {enhancedPrompt && !isEditing && !swaggerSpec && (
@@ -413,7 +445,9 @@ export default function Home() {
         {swaggerSpec && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-white drop-shadow-sm">Generated Swagger API Specification</h2>
+              <h2 className="text-2xl font-bold text-white drop-shadow-sm">
+                {swaggerMode === "upload" ? "Uploaded" : "Generated"} Swagger API Specification
+              </h2>
               <div className="flex flex-wrap gap-2 items-center">
                 {/* Hidden n8n button - keeping the function for potential future use */}
                 {false && (
@@ -465,7 +499,7 @@ export default function Home() {
           </div>
         )}
 
-        {!swaggerSpec && (
+        {!swaggerSpec && !enhancedPrompt && (
           <div className="mt-4 mb-8">
             <p className="text-center text-sm text-white mb-2 drop-shadow-sm">Try one of these suggestions:</p>
             <SuggestionLabels onSuggestionClick={handleSuggestionClick} />

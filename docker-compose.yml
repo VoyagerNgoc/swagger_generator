@@ -11,13 +11,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Pass environment variables from host to container
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
-      - N8N_WEBHOOK_TOKEN=${N8N_WEBHOOK_TOKEN}
+      - CODEGEN_API_KEY=${CODEGEN_API_KEY}
+      - CODEGEN_ORG_ID=${CODEGEN_ORG_ID}
+      - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}
     volumes:
-      # Mount for persistent data if needed
       - prompt-data:/app/data
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
