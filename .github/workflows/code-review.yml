@@ -1,3 +1,5 @@
+name: Voyager Code Review
+
 on:
   pull_request:
     types: [opened, synchronize]
@@ -11,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Code Review with Voyager
+      - name: Run Voyager Codex Review
         uses: VOYAGER-Inc/voyager_codex@v1
         with:
           codegen_api_key: ${{ secrets.CODEGEN_API_KEY }}
