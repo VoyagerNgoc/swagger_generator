@@ -23,3 +23,4 @@ jobs:
         with:
           codegen_api_key: ${{ secrets.CODEGEN_API_KEY }}
           codegen_org_id: ${{ secrets.CODEGEN_ORG_ID }}
+          github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
