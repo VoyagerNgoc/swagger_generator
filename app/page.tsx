@@ -33,6 +33,7 @@ export default function Home() {
   const [codeGenJobIds, setCodeGenJobIds] = useState<{ backend?: string; frontend?: string } | null>(null)
   const [backendFramework, setBackendFramework] = useState("Ruby on Rails")
   const [frontendFramework, setFrontendFramework] = useState("Next.js")
+  const [database, setDatabase] = useState("postgresql")
   const [backendRepo, setBackendRepo] = useState("")
   const [frontendRepo, setFrontendRepo] = useState("")
   const [hasSubmittedToCodeGen, setHasSubmittedToCodeGen] = useState(false)
@@ -222,6 +223,7 @@ export default function Home() {
     setHasSubmittedToCodeGen(false)
     setBackendFramework("Ruby on Rails")
     setFrontendFramework("Next.js")
+    setDatabase("postgresql")
     setBackendRepo("")
     setFrontendRepo("")
     setSwaggerMode("generate")
@@ -235,6 +237,7 @@ export default function Home() {
       const result = await generateCodeWithCodeGen(swaggerSpec, {
         backend: backendFramework,
         frontend: frontendFramework,
+        database: database,
         backendRepo: backendRepo,
         frontendRepo: frontendRepo,
       })
@@ -430,10 +433,12 @@ export default function Home() {
           <FrameworkSelector
             backendFramework={backendFramework}
             frontendFramework={frontendFramework}
+            database={database}
             backendRepo={backendRepo}
             frontendRepo={frontendRepo}
             onBackendChange={setBackendFramework}
             onFrontendChange={setFrontendFramework}
+            onDatabaseChange={setDatabase}
             onBackendRepoChange={setBackendRepo}
             onFrontendRepoChange={setFrontendRepo}
             onSubmit={handleSubmitToCodeGen}

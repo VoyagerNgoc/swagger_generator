@@ -2,7 +2,7 @@
 
 import { OpenAI } from "openai"
 import { Anthropic } from "@anthropic-ai/sdk"
-import { BASE_PROMPTS, FRAMEWORK_CONFIGS, type FrameworkOptions, type CodeGenJob } from "@/lib/constants"
+import { BASE_PROMPTS, FRAMEWORK_CONFIGS, DATABASE_OPTIONS, type FrameworkOptions, type CodeGenJob } from "@/lib/constants"
 
 export async function enhancePrompt(userPrompt: string): Promise<string> {
   // Check which API keys are available
@@ -312,6 +312,7 @@ function generatePrompt(
   type: "backend" | "frontend",
   framework: string,
   swaggerSpec: string,
+  database?: string,
   repository?: string,
 ): string {
   const config = FRAMEWORK_CONFIGS[type][framework]
@@ -332,11 +333,33 @@ REPOSITORY CONFIGURATION:
 - Ensure all files are properly organized in the repository structure`
     : ""
 
+  // Database configuration for backend
+  let databaseInstruction = ""
+  if (type === "backend" && database && config.databases) {
+    const selectedDb = DATABASE_OPTIONS.find(db => db.value === database)
+    const dbConfig = config.databases[database]
+    
+    if (selectedDb && dbConfig) {
+      databaseInstruction = `
+
+DATABASE CONFIGURATION:
+- Database System: ${selectedDb.label} (${selectedDb.description})
+- Integration: ${dbConfig}
+- Database Features: ${selectedDb.features.join(", ")}
+- Ensure proper database connection configuration
+- Include database migrations and schema setup
+- Implement proper connection pooling and error handling
+- Add database health checks and monitoring
+- Include proper indexing strategies for performance
+- Implement database backup and recovery procedures`
+    }
+  }
+
   const featuresText = config.features.length > 0 ? `\n- ${config.features.join("\n- ")}` : ""
 
   return `${basePrompt.prefix} ${config.name} ${basePrompt.suffix}
 
-FRAMEWORK-SPECIFIC FEATURES:${featuresText}${repositoryInstruction}
+FRAMEWORK-SPECIFIC FEATURES:${featuresText}${databaseInstruction}${repositoryInstruction}
 
 SWAGGER SPECIFICATION:
 ${swaggerSpec}`
@@ -363,8 +386,8 @@ export async function generateCodeWithCodeGen(
   }
 
   try {
-    // Generate backend prompt
-    const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.backendRepo)
+    // Generate backend prompt with database configuration
+    const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.database, frameworks.backendRepo)
 
     const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
       method: "POST",
@@ -386,7 +409,7 @@ export async function generateCodeWithCodeGen(
     const backendJobId = backendData.jobId || backendData.id || backendData.runId || "unknown"
 
     // Generate frontend prompt
-    const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, frameworks.frontendRepo)
+    const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, undefined, frameworks.frontendRepo)
 
     const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
       method: "POST",

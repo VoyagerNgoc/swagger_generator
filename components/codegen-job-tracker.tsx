@@ -5,15 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Loader2, CheckCircle, XCircle, Clock, ExternalLink, GitPullRequest } from "lucide-react"
+import { Loader2, CheckCircle, XCircle, Clock, ExternalLink, GitPullRequest, Database } from "lucide-react"
 import { checkCodeGenJobStatus, type CodeGenJob } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
+import { DATABASE_OPTIONS } from "@/lib/constants"
 
 interface CodeGenJobTrackerProps {
   backendJobId?: string
   frontendJobId?: string
   backendFramework?: string
   frontendFramework?: string
+  database?: string
 }
 
 export default function CodeGenJobTracker({
@@ -21,11 +23,14 @@ export default function CodeGenJobTracker({
   frontendJobId,
   backendFramework,
   frontendFramework,
+  database,
 }: CodeGenJobTrackerProps) {
   const [backendJob, setBackendJob] = useState<CodeGenJob | null>(null)
   const [frontendJob, setFrontendJob] = useState<CodeGenJob | null>(null)
   const [isPolling, setIsPolling] = useState(true)
   const { toast } = useToast()
+
+  const selectedDatabase = DATABASE_OPTIONS.find(db => db.value === database)
 
   useEffect(() => {
     if (!backendJobId && !frontendJobId) return
@@ -35,7 +40,7 @@ export default function CodeGenJobTracker({
         if (backendJobId) {
           const backendStatus = await checkCodeGenJobStatus(backendJobId)
           if (backendStatus) {
-            setBackendJob({ ...backendStatus, framework: backendFramework })
+            setBackendJob({ ...backendStatus, framework: backendFramework, database })
           }
         }
 
@@ -73,7 +78,7 @@ export default function CodeGenJobTracker({
     }, 5000) // Poll every 5 seconds
 
     return () => clearInterval(interval)
-  }, [backendJobId, frontendJobId, backendFramework, frontendFramework, toast])
+  }, [backendJobId, frontendJobId, backendFramework, frontendFramework, database, toast])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -145,7 +150,16 @@ export default function CodeGenJobTracker({
         {backendJobId && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">Backend ({backendFramework || "Ruby on Rails"})</h4>
+              <div className="flex items-center gap-3">
+                <h4 className="font-medium">Backend ({backendFramework || "Ruby on Rails"})</h4>
+                {selectedDatabase && (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Database className="h-3 w-3" />
+                    <span>{selectedDatabase.icon}</span>
+                    <span>{selectedDatabase.label}</span>
+                  </div>
+                )}
+              </div>
               <Badge
                 variant={getStatusColor(backendJob?.status || "loading_processing")}
                 className="flex items-center gap-1"
@@ -200,7 +214,7 @@ export default function CodeGenJobTracker({
         {frontendJobId && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">Frontend ({frontendFramework || "NuxtJS"})</h4>
+              <h4 className="font-medium">Frontend ({frontendFramework || "Next.js"})</h4>
               <Badge
                 variant={getStatusColor(frontendJob?.status || "loading_processing")}
                 className="flex items-center gap-1"

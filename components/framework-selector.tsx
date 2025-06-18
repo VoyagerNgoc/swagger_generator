@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Code, Loader2, Github } from "lucide-react"
 import { BACKEND_FRAMEWORKS, FRONTEND_FRAMEWORKS } from "@/lib/constants"
 import GitHubRepoSelector from "./github-repo-selector"
+import DatabaseSelector from "./database-selector"
 
 interface FrameworkSelectorProps {
   backendFramework: string
   frontendFramework: string
+  database: string
   backendRepo: string
   frontendRepo: string
   onBackendChange: (value: string) => void
   onFrontendChange: (value: string) => void
+  onDatabaseChange: (value: string) => void
   onBackendRepoChange: (value: string) => void
   onFrontendRepoChange: (value: string) => void
   onSubmit: () => void
@@ -24,26 +27,28 @@ interface FrameworkSelectorProps {
 export default function FrameworkSelector({
   backendFramework,
   frontendFramework,
+  database,
   backendRepo,
   frontendRepo,
   onBackendChange,
   onFrontendChange,
+  onDatabaseChange,
   onBackendRepoChange,
   onFrontendRepoChange,
   onSubmit,
   isSubmitting,
   disabled,
 }: FrameworkSelectorProps) {
-  const isFormValid = backendFramework && frontendFramework && backendRepo && frontendRepo
+  const isFormValid = backendFramework && frontendFramework && database && backendRepo && frontendRepo
 
   return (
     <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Code className="h-5 w-5" />
-          Framework & Repository Selection
+          Framework, Database & Repository Selection
         </CardTitle>
-        <CardDescription>Choose your preferred frameworks and target repositories for code generation</CardDescription>
+        <CardDescription>Choose your preferred frameworks, database, and target repositories for code generation</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -110,6 +115,13 @@ export default function FrameworkSelector({
           </div>
         </div>
 
+        {/* Database Selection */}
+        <DatabaseSelector
+          value={database}
+          onChange={onDatabaseChange}
+          disabled={disabled}
+        />
+
         <div className="pt-4 border-t">
           <Button
             onClick={onSubmit}
@@ -131,7 +143,7 @@ export default function FrameworkSelector({
 
           {!isFormValid && (
             <p className="text-sm text-muted-foreground mt-2 text-center">
-              Please select frameworks and repositories for both backend and frontend
+              Please select frameworks, database, and repositories for both backend and frontend
             </p>
           )}
         </div>
