@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { enhancePrompt, generateSwaggerAPI, sendSwaggerToN8n, generateCodeWithCodeGen } from "./actions"
-import { Loader2, CheckCircle, Edit, Save, Download, Copy, Send, RefreshCw, Upload } from "lucide-react"
+import { Loader2, CheckCircle, Edit, Save, Download, Send, RefreshCw, Upload } from "lucide-react"
 import SuggestionLabels from "@/components/suggestion-labels"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
@@ -176,43 +176,6 @@ export default function Home() {
     })
   }
 
-  const handleCopySwagger = async () => {
-    try {
-      await navigator.clipboard.writeText(swaggerSpec)
-      toast({
-        variant: "success",
-        title: "Success",
-        description: "Swagger specification copied to clipboard",
-      })
-    } catch (error) {
-      // Fallback for older browsers
-      try {
-        const textArea = document.createElement("textarea")
-        textArea.value = swaggerSpec
-        textArea.style.position = "fixed"
-        textArea.style.left = "-999999px"
-        textArea.style.top = "-999999px"
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-        document.execCommand("copy")
-        document.body.removeChild(textArea)
-
-        toast({
-          variant: "success",
-          title: "Success",
-          description: "Swagger specification copied to clipboard",
-        })
-      } catch (fallbackError) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to copy to clipboard. Please copy manually.",
-        })
-      }
-    }
-  }
-
   const handleReset = () => {
     setUserPrompt("")
     setEnhancedPrompt("")
@@ -295,6 +258,7 @@ export default function Home() {
             frontendJobId={codeGenJobIds.frontend}
             backendFramework={backendFramework}
             frontendFramework={frontendFramework}
+            database={database}
           />
         )}
 
@@ -474,14 +438,6 @@ export default function Home() {
                     )}
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  onClick={handleCopySwagger}
-                  className="bg-white/20 hover:bg-white/30 text-white border-white/20"
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
                 <Button
                   variant="outline"
                   onClick={handleDownloadSwagger}
