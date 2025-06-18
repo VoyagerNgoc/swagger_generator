@@ -11,10 +11,13 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_API_KEY=xxxx
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - CODEGEN_API_KEY=${CODEGEN_API_KEY}
       - CODEGEN_ORG_ID=${CODEGEN_ORG_ID}
       - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - N8N_WEBHOOK_TOKEN=${N8N_WEBHOOK_TOKEN}
     volumes:
       - prompt-data:/app/data
     healthcheck:
