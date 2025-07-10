@@ -147,11 +147,11 @@ export default function CodeGenJobTracker({
         <CardDescription>Track the progress of your code generation jobs</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {backendJobId && (
+        {backendJobId && backendFramework && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h4 className="font-medium">Backend ({backendFramework || "Ruby on Rails"})</h4>
+                <h4 className="font-medium">Backend ({backendFramework})</h4>
                 {selectedDatabase && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Database className="h-3 w-3" />
@@ -211,10 +211,10 @@ export default function CodeGenJobTracker({
           </div>
         )}
 
-        {frontendJobId && (
+        {frontendJobId && frontendFramework && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">Frontend ({frontendFramework || "Next.js"})</h4>
+              <h4 className="font-medium">Frontend ({frontendFramework})</h4>
               <Badge
                 variant={getStatusColor(frontendJob?.status || "loading_processing")}
                 className="flex items-center gap-1"

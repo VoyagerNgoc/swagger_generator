@@ -386,55 +386,66 @@ export async function generateCodeWithCodeGen(
   }
 
   try {
-    // Generate backend prompt with database configuration
-    const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.database, frameworks.backendRepo)
+    let backendJobId: string | undefined
+    let frontendJobId: string | undefined
 
-    const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        prompt: backendPrompt,
-      }),
-    })
+    // Generate backend if requested
+    if (frameworks.generateBackend) {
+      const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.database, frameworks.backendRepo)
 
-    if (!backendResponse.ok) {
-      const errorText = await backendResponse.text()
-      throw new Error(`Backend generation API responded with status: ${backendResponse.status}. Details: ${errorText}`)
+      const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          prompt: backendPrompt,
+        }),
+      })
+
+      if (!backendResponse.ok) {
+        const errorText = await backendResponse.text()
+        throw new Error(`Backend generation API responded with status: ${backendResponse.status}. Details: ${errorText}`)
+      }
+
+      const backendData = await backendResponse.json()
+      backendJobId = backendData.jobId || backendData.id || backendData.runId || "unknown"
     }
 
-    const backendData = await backendResponse.json()
-    const backendJobId = backendData.jobId || backendData.id || backendData.runId || "unknown"
+    // Generate frontend if requested
+    if (frameworks.generateFrontend) {
+      const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, undefined, frameworks.frontendRepo)
 
-    // Generate frontend prompt
-    const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, undefined, frameworks.frontendRepo)
+      const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          prompt: frontendPrompt,
+        }),
+      })
 
-    const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        prompt: frontendPrompt,
-      }),
-    })
+      if (!frontendResponse.ok) {
+        const errorText = await frontendResponse.text()
+        throw new Error(
+          `Frontend generation API responded with status: ${frontendResponse.status}. Details: ${errorText}`,
+        )
+      }
 
-    if (!frontendResponse.ok) {
-      const errorText = await frontendResponse.text()
-      throw new Error(
-        `Frontend generation API responded with status: ${frontendResponse.status}. Details: ${errorText}`,
-      )
+      const frontendData = await frontendResponse.json()
+      frontendJobId = frontendData.jobId || frontendData.id || frontendData.runId || "unknown"
     }
 
-    const frontendData = await frontendResponse.json()
-    const frontendJobId = frontendData.jobId || frontendData.id || frontendData.runId || "unknown"
-
+    const generatedTypes = []
+    if (frameworks.generateBackend) generatedTypes.push("backend")
+    if (frameworks.generateFrontend) generatedTypes.push("frontend")
+    
     return {
       success: true,
-      message: "Code generation jobs submitted successfully to CodeGen API",
+      message: `${generatedTypes.join(" and ")} code generation job${generatedTypes.length > 1 ? 's' : ''} submitted successfully to CodeGen API`,
       backendJobId,
       frontendJobId,
     }
