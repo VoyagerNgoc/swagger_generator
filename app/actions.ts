@@ -357,7 +357,9 @@ function generatePrompt(
     - All Swagger-defined endpoints are implemented
 
 This is swagger documents:
-${swaggerSpec}`
+${swaggerSpec}
+
+repo: ${repository || 'laravel' + laravelVersion + '-api-template'}`
   }
 
   const config = FRAMEWORK_CONFIGS[type][framework]
@@ -402,12 +404,21 @@ DATABASE CONFIGURATION:
 
   const featuresText = config.features.length > 0 ? `\n- ${config.features.join("\n- ")}` : ""
 
-  return `${basePrompt.prefix} ${config.name} ${basePrompt.suffix}
+  const prompt = `${basePrompt.prefix} ${config.name} ${basePrompt.suffix}
 
 FRAMEWORK-SPECIFIC FEATURES:${featuresText}${databaseInstruction}${repositoryInstruction}
 
 SWAGGER SPECIFICATION:
 ${swaggerSpec}`
+
+  // Add repository name at the end
+  if (repository) {
+    return `${prompt}
+
+repo: ${repository}`
+  }
+
+  return prompt
 }
 
 export async function generateCodeWithCodeGen(
