@@ -1,42 +1,38 @@
 // Framework definitions
 export const BACKEND_FRAMEWORKS = [
+  // Popular Web Frameworks
   "Ruby on Rails",
-  "PHP Laravel 11",
-  "PHP Laravel 12", 
-  "Django",
-  "Go",
+  "Node.js Express",
+  "Python Django",
+  "Python FastAPI",
+  "Python Flask",
+  "Go Gin",
+  "Go Fiber",
+  "Go Echo",
+  "PHP Laravel",
+  "PHP Symfony",
+  "Rust Actix",
+  "Rust Axum",
+  "Kotlin Spring Boot",
 ]
 
 export const FRONTEND_FRAMEWORKS = [
   // React Ecosystem
   "Next.js",
   "React",
-  "Gatsby",
   "Remix",
   // Vue Ecosystem
   "NuxtJS",
   "Vue.js",
-  "Quasar",
   // Angular Ecosystem
   "Angular",
-  "Ionic Angular",
-  // Svelte Ecosystem
-  "SvelteKit",
-  "Svelte",
   // Other Popular Frameworks
   "React Native Expo",
-  "Electron",
-  // Static Site Generators
-  "Astro",
   "Vite + React",
   "Vite + Vue",
   // Mobile Frameworks
   "Flutter",
   "React Native",
-  "Ionic",
-  "Xamarin",
-  // Desktop Frameworks
-  "Tauri",
   "Flutter Desktop",
 ]
 
@@ -180,27 +176,17 @@ export const FRAMEWORK_CONFIGS = {
         sqlite: "SQLite with sqlite3 gem"
       }
     },
-    "PHP Laravel 11": {
-      name: "PHP Laravel 11",
-      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
+    "Node.js Express": {
+      name: "Node.js Express",
+      features: ["TypeScript", "Prisma ORM", "Jest testing", "JWT authentication", "Redis caching"],
       databases: {
-        postgresql: "PostgreSQL with pdo_pgsql",
-        mysql: "MySQL with pdo_mysql",
-        mariadb: "MariaDB with pdo_mysql",
-        sqlite: "SQLite with pdo_sqlite"
+        postgresql: "PostgreSQL with Prisma",
+        mysql: "MySQL with Prisma",
+        mariadb: "MariaDB with Prisma", 
+        sqlite: "SQLite with Prisma"
       }
     },
-    "PHP Laravel 12": {
-      name: "PHP Laravel 12",
-      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
-      databases: {
-        postgresql: "PostgreSQL with pdo_pgsql",
-        mysql: "MySQL with pdo_mysql",
-        mariadb: "MariaDB with pdo_mysql",
-        sqlite: "SQLite with pdo_sqlite"
-      }
-    },
-    "Django": {
+    "Python Django": {
       name: "Python Django",
       features: ["Django REST Framework", "PostgreSQL", "Celery", "pytest testing", "Django authentication"],
       databases: {
@@ -210,8 +196,34 @@ export const FRAMEWORK_CONFIGS = {
         sqlite: "SQLite (built-in)"
       }
     },
-    "Go": {
-      name: "Go with Gin framework",
+    "Python FastAPI": {
+      name: "Python FastAPI",
+      features: ["SQLAlchemy ORM", "Pydantic validation", "pytest testing", "OAuth2 authentication", "Async support"],
+      databases: {
+        postgresql: "PostgreSQL with asyncpg",
+        mysql: "MySQL with aiomysql",
+        mariadb: "MariaDB with aiomysql",
+        sqlite: "SQLite with aiosqlite"
+      }
+    },
+    "Python Flask": {
+      name: "Python Flask",
+      features: [
+        "SQLAlchemy ORM",
+        "Flask-RESTful",
+        "pytest testing",
+        "JWT authentication",
+        "Marshmallow serialization",
+      ],
+      databases: {
+        postgresql: "PostgreSQL with psycopg2",
+        mysql: "MySQL with PyMySQL",
+        mariadb: "MariaDB with PyMySQL",
+        sqlite: "SQLite (built-in)"
+      }
+    },
+    "Go Gin": {
+      name: "Go Gin framework",
       features: ["GORM ORM", "Go testing", "JWT authentication", "Redis integration", "Docker optimization"],
       databases: {
         postgresql: "PostgreSQL with GORM",
@@ -220,6 +232,66 @@ export const FRAMEWORK_CONFIGS = {
         sqlite: "SQLite with GORM"
       }
     },
+    "Go Fiber": {
+      name: "Go Fiber framework",
+      features: ["GORM ORM", "Go testing", "JWT middleware", "High performance", "Swagger integration"],
+      databases: {
+        postgresql: "PostgreSQL with GORM",
+        mysql: "MySQL with GORM", 
+        mariadb: "MariaDB with GORM",
+        sqlite: "SQLite with GORM"
+      }
+    },
+    "Go Echo": {
+      name: "Go Echo framework",
+      features: ["GORM ORM", "Go testing", "JWT middleware", "WebSocket support", "Prometheus metrics"],
+      databases: {
+        postgresql: "PostgreSQL with GORM",
+        mysql: "MySQL with GORM",
+        mariadb: "MariaDB with GORM", 
+        sqlite: "SQLite with GORM"
+      }
+    },
+    "PHP Laravel": {
+      name: "PHP Laravel",
+      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
+      databases: {
+        postgresql: "PostgreSQL with pdo_pgsql",
+        mysql: "MySQL with pdo_mysql",
+        mariadb: "MariaDB with pdo_mysql",
+        sqlite: "SQLite with pdo_sqlite"
+      }
+    },
+    "PHP Symfony": {
+      name: "PHP Symfony",
+      features: ["Doctrine ORM", "PHPUnit testing", "Symfony Security", "Messenger component", "API Platform"],
+      databases: {
+        postgresql: "PostgreSQL with Doctrine DBAL",
+        mysql: "MySQL with Doctrine DBAL",
+        mariadb: "MariaDB with Doctrine DBAL",
+        sqlite: "SQLite with Doctrine DBAL"
+      }
+    },
+    "Rust Actix": {
+      name: "Rust Actix Web",
+      features: ["Diesel ORM", "Rust testing", "JWT authentication", "High performance", "Async support"],
+      databases: {
+        postgresql: "PostgreSQL with Diesel",
+        mysql: "MySQL with Diesel",
+        mariadb: "MariaDB with Diesel",
+        sqlite: "SQLite with Diesel"
+      }
+    },
+    "Rust Axum": {
+      name: "Rust Axum framework",
+      features: ["SQLx", "Rust testing", "Tower middleware", "Tokio async", "Serde serialization"],
+      databases: {
+        postgresql: "PostgreSQL with SQLx",
+        mysql: "MySQL with SQLx",
+        mariadb: "MariaDB with SQLx",
+        sqlite: "SQLite with SQLx"
+      }
+    }
   },
   frontend: {
     "Next.js": {
@@ -234,10 +306,6 @@ export const FRAMEWORK_CONFIGS = {
       name: "React Native",
       features: ["TypeScript", "React Navigation", "Expo", "NativeBase/Tamagui", "AsyncStorage"],
     },
-    Gatsby: {
-      name: "Gatsby",
-      features: ["TypeScript", "GraphQL", "Tailwind CSS", "PWA", "Static generation"],
-    },
     Remix: {
       name: "Remix",
       features: ["TypeScript", "Tailwind CSS", "Progressive enhancement", "Nested routing", "Form handling"],
@@ -250,25 +318,9 @@ export const FRAMEWORK_CONFIGS = {
       name: "Vue.js 3",
       features: ["TypeScript", "Vue Router", "Pinia", "Tailwind CSS", "Composition API"],
     },
-    Quasar: {
-      name: "Quasar Framework",
-      features: ["TypeScript", "Vue 3", "Material Design", "Cross-platform", "PWA"],
-    },
     Angular: {
       name: "Angular",
       features: ["TypeScript", "Angular Router", "NgRx", "Angular Material", "PWA"],
-    },
-    "Ionic Angular": {
-      name: "Ionic Angular",
-      features: ["TypeScript", "Ionic UI", "Capacitor", "Angular", "Mobile-first"],
-    },
-    SvelteKit: {
-      name: "SvelteKit",
-      features: ["TypeScript", "Tailwind CSS", "Svelte stores", "SSR/SSG", "Adapter system"],
-    },
-    Svelte: {
-      name: "Svelte",
-      features: ["TypeScript", "Svelte stores", "Tailwind CSS", "Vite", "Component-based"],
     },
     Flutter: {
       name: "Flutter",
@@ -278,14 +330,6 @@ export const FRAMEWORK_CONFIGS = {
       name: "React Native with Expo",
       features: ["TypeScript", "Expo SDK", "React Navigation", "Expo Router", "OTA updates"],
     },
-    Electron: {
-      name: "Electron",
-      features: ["TypeScript", "React/Vue", "Node.js integration", "Auto-updater", "Native menus"],
-    },
-    Astro: {
-      name: "Astro",
-      features: ["TypeScript", "Component islands", "Multiple frameworks", "Static generation", "Tailwind CSS"],
-    },
     "Vite + React": {
       name: "Vite + React",
       features: ["TypeScript", "React Router", "Tailwind CSS", "Fast HMR", "Modern build"],
@@ -293,18 +337,6 @@ export const FRAMEWORK_CONFIGS = {
     "Vite + Vue": {
       name: "Vite + Vue",
       features: ["TypeScript", "Vue Router", "Pinia", "Tailwind CSS", "Fast HMR"],
-    },
-    Ionic: {
-      name: "Ionic",
-      features: ["TypeScript", "Ionic UI", "Capacitor", "Angular/React/Vue", "Mobile-first"],
-    },
-    Xamarin: {
-      name: "Xamarin",
-      features: ["C#", "XAML", "Cross-platform", "Native performance", "Microsoft ecosystem"],
-    },
-    Tauri: {
-      name: "Tauri",
-      features: ["Rust backend", "Web frontend", "Small bundle", "Security-focused", "Cross-platform"],
     },
     "Flutter Desktop": {
       name: "Flutter Desktop",
