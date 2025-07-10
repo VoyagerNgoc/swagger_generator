@@ -324,7 +324,40 @@ function generatePrompt(
     
     const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
     
-    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.`
+    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
+
+1. Update rule: This is an implement new feature — do not overwrite current Dockerfile, docker-compose if not need (IMPORTANT).
+2. Manual step required:  run migrations and generate key manually after container is running.
+3. Scope:
+    - Laravel ${laravelVersion} API-only project
+    - Swagger-based API endpoints and documents
+    - Fully dockerized:
+        - PHP 8.3+ FPM
+        - ${databaseName}
+        - Composer
+    - No Nginx needed for development
+    - Use php artisan serve --host=0.0.0.0 --port=9000 for dev server
+4. Health check route: /api/ping returns { "status": "ok" }
+5. README.md must include:
+    - How to run with docker-compose up -d --build
+    - Manual step after container is running:
+        - Run php artisan migrate --force
+        - Run generate key
+        - Run seed
+    - How to run tests
+    - Expected API endpoints
+6. Success criteria:
+    - docker-compose up --build runs successfully, app available at http://localhost:9000/
+    - No manual steps except migrations
+    - vendor/autoload.php exists
+    - .env is set
+    - /api/ping works
+    - No errors
+    - No migration duplication/conflict
+    - All Swagger-defined endpoints are implemented
+
+This is swagger documents:
+${swaggerSpec}`
   }
 
   const config = FRAMEWORK_CONFIGS[type][framework]
