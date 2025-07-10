@@ -315,6 +315,16 @@ function generatePrompt(
   database?: string,
   repository?: string,
 ): string {
+  // Special handling for Laravel frameworks
+  if (framework === "PHP Laravel 11" || framework === "PHP Laravel 12") {
+    const databaseName = database === "postgresql" ? "PostgreSQL" : 
+                        database === "mysql" ? "MySQL 8.0+" :
+                        database === "mariadb" ? "MariaDB" :
+                        database === "sqlite" ? "SQLite" : "MySQL 8.0+"
+    
+    const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
+    
+    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
   const config = FRAMEWORK_CONFIGS[type][framework]
   const basePrompt = BASE_PROMPTS[type]
 
