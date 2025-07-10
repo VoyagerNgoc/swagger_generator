@@ -324,7 +324,9 @@ function generatePrompt(
     
     const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
     
-    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
+    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.`
+  }
+
   const config = FRAMEWORK_CONFIGS[type][framework]
   const basePrompt = BASE_PROMPTS[type]
 
