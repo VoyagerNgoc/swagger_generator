@@ -548,6 +548,8 @@ export interface FrameworkOptions {
   database?: string
   backendRepo?: string
   frontendRepo?: string
+  generateBackend?: boolean
+  generateFrontend?: boolean
 }
 
 export interface CodeGenJob {

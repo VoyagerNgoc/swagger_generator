@@ -38,6 +38,8 @@ export default function Home() {
   const [frontendRepo, setFrontendRepo] = useState("")
   const [hasSubmittedToCodeGen, setHasSubmittedToCodeGen] = useState(false)
   const [swaggerMode, setSwaggerMode] = useState<"generate" | "upload">("generate")
+  const [generateBackend, setGenerateBackend] = useState(true)
+  const [generateFrontend, setGenerateFrontend] = useState(true)
 
   useEffect(() => {
     // Check which AI provider is being used
@@ -190,6 +192,8 @@ export default function Home() {
     setBackendRepo("")
     setFrontendRepo("")
     setSwaggerMode("generate")
+    setGenerateBackend(true)
+    setGenerateFrontend(true)
   }
 
   const handleSubmitToCodeGen = async () => {
@@ -203,6 +207,8 @@ export default function Home() {
         database: database,
         backendRepo: backendRepo,
         frontendRepo: frontendRepo,
+        generateBackend,
+        generateFrontend,
       })
 
       if (result.success) {
@@ -400,11 +406,15 @@ export default function Home() {
             database={database}
             backendRepo={backendRepo}
             frontendRepo={frontendRepo}
+            generateBackend={generateBackend}
+            generateFrontend={generateFrontend}
             onBackendChange={setBackendFramework}
             onFrontendChange={setFrontendFramework}
             onDatabaseChange={setDatabase}
             onBackendRepoChange={setBackendRepo}
             onFrontendRepoChange={setFrontendRepo}
+            onGenerateBackendChange={setGenerateBackend}
+            onGenerateFrontendChange={setGenerateFrontend}
             onSubmit={handleSubmitToCodeGen}
             isSubmitting={isSubmittingToCodeGen}
             disabled={hasSubmittedToCodeGen}

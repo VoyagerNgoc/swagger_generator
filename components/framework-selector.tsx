@@ -3,7 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Code, Loader2, Github } from "lucide-react"
+import { Code, Loader2, Github, Server, Monitor, Layers } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { BACKEND_FRAMEWORKS, FRONTEND_FRAMEWORKS } from "@/lib/constants"
 import GitHubRepoSelector from "./github-repo-selector"
 import DatabaseSelector from "./database-selector"
@@ -14,11 +15,15 @@ interface FrameworkSelectorProps {
   database: string
   backendRepo: string
   frontendRepo: string
+  generateBackend: boolean
+  generateFrontend: boolean
   onBackendChange: (value: string) => void
   onFrontendChange: (value: string) => void
   onDatabaseChange: (value: string) => void
   onBackendRepoChange: (value: string) => void
   onFrontendRepoChange: (value: string) => void
+  onGenerateBackendChange: (value: boolean) => void
+  onGenerateFrontendChange: (value: boolean) => void
   onSubmit: () => void
   isSubmitting: boolean
   disabled: boolean
@@ -30,16 +35,22 @@ export default function FrameworkSelector({
   database,
   backendRepo,
   frontendRepo,
+  generateBackend,
+  generateFrontend,
   onBackendChange,
   onFrontendChange,
   onDatabaseChange,
   onBackendRepoChange,
   onFrontendRepoChange,
+  onGenerateBackendChange,
+  onGenerateFrontendChange,
   onSubmit,
   isSubmitting,
   disabled,
 }: FrameworkSelectorProps) {
-  const isFormValid = backendFramework && frontendFramework && database && backendRepo && frontendRepo
+  const isBackendValid = !generateBackend || (backendFramework && database && backendRepo)
+  const isFrontendValid = !generateFrontend || (frontendFramework && frontendRepo)
+  const isFormValid = (generateBackend || generateFrontend) && isBackendValid && isFrontendValid
 
   return (
     <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
@@ -51,9 +62,46 @@ export default function FrameworkSelector({
         <CardDescription>Choose your preferred frameworks, database, and target repositories for code generation</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Generation Options */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Layers className="h-4 w-4" />
+            Generation Options
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center space-x-3 p-4 border rounded-lg">
+              <Checkbox
+                id="generate-backend"
+                checked={generateBackend}
+                onCheckedChange={onGenerateBackendChange}
+                disabled={disabled}
+              />
+              <div className="flex items-center gap-2">
+                <Server className="h-4 w-4" />
+                <label htmlFor="generate-backend" className="text-sm font-medium cursor-pointer">
+                  Generate Backend
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-4 border rounded-lg">
+              <Checkbox
+                id="generate-frontend"
+                checked={generateFrontend}
+                onCheckedChange={onGenerateFrontendChange}
+                disabled={disabled}
+              />
+              <div className="flex items-center gap-2">
+                <Monitor className="h-4 w-4" />
+                <label htmlFor="generate-frontend" className="text-sm font-medium cursor-pointer">
+                  Generate Frontend
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Backend Section */}
-          <div className="space-y-4">
+          <div className={`space-y-4 ${!generateBackend ? 'opacity-50' : ''}`}>
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Github className="h-4 w-4" />
               Backend Configuration
@@ -79,12 +127,12 @@ export default function FrameworkSelector({
               label="Backend Repository"
               value={backendRepo}
               onChange={onBackendRepoChange}
-              disabled={disabled}
+              disabled={disabled || !generateBackend}
             />
           </div>
 
           {/* Frontend Section */}
-          <div className="space-y-4">
+          <div className={`space-y-4 ${!generateFrontend ? 'opacity-50' : ''}`}>
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Github className="h-4 w-4" />
               Frontend Configuration
@@ -110,17 +158,19 @@ export default function FrameworkSelector({
               label="Frontend Repository"
               value={frontendRepo}
               onChange={onFrontendRepoChange}
-              disabled={disabled}
+              disabled={disabled || !generateFrontend}
             />
           </div>
         </div>
 
         {/* Database Selection */}
-        <DatabaseSelector
-          value={database}
-          onChange={onDatabaseChange}
-          disabled={disabled}
-        />
+        {generateBackend && (
+          <DatabaseSelector
+            value={database}
+            onChange={onDatabaseChange}
+            disabled={disabled}
+          />
+        )}
 
         <div className="pt-4 border-t">
           <Button
@@ -136,14 +186,20 @@ export default function FrameworkSelector({
             ) : (
               <>
                 <Code className="mr-2 h-5 w-5" />
-                Submit to CodeGen API
+                Generate {generateBackend && generateFrontend ? 'Backend & Frontend' : generateBackend ? 'Backend' : 'Frontend'}
               </>
             )}
           </Button>
 
           {!isFormValid && (
             <p className="text-sm text-muted-foreground mt-2 text-center">
-              Please select frameworks, database, and repositories for both backend and frontend
+              {!generateBackend && !generateFrontend 
+                ? "Please select at least one generation option (Backend or Frontend)"
+                : generateBackend && !isBackendValid
+                ? "Please complete backend configuration (framework, database, and repository)"
+                : generateFrontend && !isFrontendValid
+                ? "Please complete frontend configuration (framework and repository)"
+                : "Please complete the required configuration"}
             </p>
           )}
         </div>
