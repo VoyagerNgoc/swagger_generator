@@ -52,6 +52,13 @@ export default function FrameworkSelector({
   const isFrontendValid = !generateFrontend || (frontendFramework && frontendRepo)
   const isFormValid = (generateBackend || generateFrontend) && isBackendValid && isFrontendValid
 
+  const getButtonText = () => {
+    if (generateBackend && generateFrontend) return 'Generate Backend & Frontend'
+    if (generateBackend) return 'Generate Backend'
+    if (generateFrontend) return 'Generate Frontend'
+    return 'Generate Code'
+  }
+
   return (
     <Card className="mb-8 shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
       <CardHeader>
@@ -69,7 +76,7 @@ export default function FrameworkSelector({
             Generation Options
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-3 p-4 border rounded-lg">
+            <div className="flex items-center space-x-3 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
               <Checkbox
                 id="generate-backend"
                 checked={generateBackend}
@@ -77,13 +84,13 @@ export default function FrameworkSelector({
                 disabled={disabled}
               />
               <div className="flex items-center gap-2">
-                <Server className="h-4 w-4" />
+                <Server className="h-4 w-4 text-blue-600" />
                 <label htmlFor="generate-backend" className="text-sm font-medium cursor-pointer">
                   Generate Backend
                 </label>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-4 border rounded-lg">
+            <div className="flex items-center space-x-3 p-4 border rounded-lg bg-green-50 dark:bg-green-950/20">
               <Checkbox
                 id="generate-frontend"
                 checked={generateFrontend}
@@ -91,7 +98,7 @@ export default function FrameworkSelector({
                 disabled={disabled}
               />
               <div className="flex items-center gap-2">
-                <Monitor className="h-4 w-4" />
+                <Monitor className="h-4 w-4 text-green-600" />
                 <label htmlFor="generate-frontend" className="text-sm font-medium cursor-pointer">
                   Generate Frontend
                 </label>
@@ -99,17 +106,18 @@ export default function FrameworkSelector({
             </div>
           </div>
         </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Backend Section */}
-          <div className={`space-y-4 ${!generateBackend ? 'opacity-50' : ''}`}>
+          <div className={`space-y-4 transition-opacity duration-200 ${!generateBackend ? 'opacity-50 pointer-events-none' : ''}`}>
             <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Github className="h-4 w-4" />
+              <Server className="h-4 w-4 text-blue-600" />
               Backend Configuration
             </h3>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Backend Framework</label>
-              <Select value={backendFramework} onValueChange={onBackendChange} disabled={disabled}>
+              <Select value={backendFramework} onValueChange={onBackendChange} disabled={disabled || !generateBackend}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select backend framework" />
                 </SelectTrigger>
@@ -132,15 +140,15 @@ export default function FrameworkSelector({
           </div>
 
           {/* Frontend Section */}
-          <div className={`space-y-4 ${!generateFrontend ? 'opacity-50' : ''}`}>
+          <div className={`space-y-4 transition-opacity duration-200 ${!generateFrontend ? 'opacity-50 pointer-events-none' : ''}`}>
             <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Github className="h-4 w-4" />
+              <Monitor className="h-4 w-4 text-green-600" />
               Frontend Configuration
             </h3>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Frontend Framework</label>
-              <Select value={frontendFramework} onValueChange={onFrontendChange} disabled={disabled}>
+              <Select value={frontendFramework} onValueChange={onFrontendChange} disabled={disabled || !generateFrontend}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select frontend framework" />
                 </SelectTrigger>
@@ -163,13 +171,15 @@ export default function FrameworkSelector({
           </div>
         </div>
 
-        {/* Database Selection */}
+        {/* Database Selection - Only show when backend is selected */}
         {generateBackend && (
-          <DatabaseSelector
-            value={database}
-            onChange={onDatabaseChange}
-            disabled={disabled}
-          />
+          <div className="transition-all duration-200">
+            <DatabaseSelector
+              value={database}
+              onChange={onDatabaseChange}
+              disabled={disabled}
+            />
+          </div>
         )}
 
         <div className="pt-4 border-t">
@@ -186,7 +196,7 @@ export default function FrameworkSelector({
             ) : (
               <>
                 <Code className="mr-2 h-5 w-5" />
-                Generate {generateBackend && generateFrontend ? 'Backend & Frontend' : generateBackend ? 'Backend' : 'Frontend'}
+                {getButtonText()}
               </>
             )}
           </Button>
