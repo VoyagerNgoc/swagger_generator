@@ -1,33 +1,10 @@
 // Framework definitions
 export const BACKEND_FRAMEWORKS = [
-  // Popular Web Frameworks
   "Ruby on Rails",
-  "Node.js Express",
-  "Python Django",
-  "Python FastAPI",
-  "Python Flask",
-  "Java Spring Boot",
-  "C# .NET Core",
-  "C# ASP.NET Core",
-  "Go Gin",
-  "Go Fiber",
-  "Go Echo",
-  "PHP Laravel",
-  "PHP Symfony",
-  "Rust Actix",
-  "Rust Axum",
-  "Kotlin Spring Boot",
-  "Scala Play",
-  "Elixir Phoenix",
-  // Cloud Native
-  "Node.js Serverless",
-  "Python Serverless",
-  "Go Serverless",
-  // Microservices
-  "Node.js Microservices",
-  "Java Microservices",
-  "Python Microservices",
-  "Go Microservices",
+  "PHP Laravel 11",
+  "PHP Laravel 12", 
+  "Django",
+  "Go",
 ]
 
 export const FRONTEND_FRAMEWORKS = [
@@ -203,17 +180,27 @@ export const FRAMEWORK_CONFIGS = {
         sqlite: "SQLite with sqlite3 gem"
       }
     },
-    "Node.js Express": {
-      name: "Node.js Express",
-      features: ["TypeScript", "Prisma ORM", "Jest testing", "JWT authentication", "Redis caching"],
+    "PHP Laravel 11": {
+      name: "PHP Laravel 11",
+      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
       databases: {
-        postgresql: "PostgreSQL with Prisma",
-        mysql: "MySQL with Prisma",
-        mariadb: "MariaDB with Prisma", 
-        sqlite: "SQLite with Prisma"
+        postgresql: "PostgreSQL with pdo_pgsql",
+        mysql: "MySQL with pdo_mysql",
+        mariadb: "MariaDB with pdo_mysql",
+        sqlite: "SQLite with pdo_sqlite"
       }
     },
-    "Python Django": {
+    "PHP Laravel 12": {
+      name: "PHP Laravel 12",
+      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
+      databases: {
+        postgresql: "PostgreSQL with pdo_pgsql",
+        mysql: "MySQL with pdo_mysql",
+        mariadb: "MariaDB with pdo_mysql",
+        sqlite: "SQLite with pdo_sqlite"
+      }
+    },
+    "Django": {
       name: "Python Django",
       features: ["Django REST Framework", "PostgreSQL", "Celery", "pytest testing", "Django authentication"],
       databases: {
@@ -223,230 +210,14 @@ export const FRAMEWORK_CONFIGS = {
         sqlite: "SQLite (built-in)"
       }
     },
-    "Python FastAPI": {
-      name: "Python FastAPI",
-      features: ["SQLAlchemy ORM", "Pydantic validation", "pytest testing", "OAuth2 authentication", "Async support"],
-      databases: {
-        postgresql: "PostgreSQL with asyncpg",
-        mysql: "MySQL with aiomysql",
-        mariadb: "MariaDB with aiomysql",
-        sqlite: "SQLite with aiosqlite"
-      }
-    },
-    "Python Flask": {
-      name: "Python Flask",
-      features: [
-        "SQLAlchemy ORM",
-        "Flask-RESTful",
-        "pytest testing",
-        "JWT authentication",
-        "Marshmallow serialization",
-      ],
-      databases: {
-        postgresql: "PostgreSQL with psycopg2",
-        mysql: "MySQL with PyMySQL",
-        mariadb: "MariaDB with PyMySQL",
-        sqlite: "SQLite (built-in)"
-      }
-    },
-    "Java Spring Boot": {
-      name: "Java Spring Boot",
-      features: ["Spring Data JPA", "Spring Security", "JUnit testing", "Maven/Gradle", "H2/PostgreSQL"],
-      databases: {
-        postgresql: "PostgreSQL with JDBC",
-        mysql: "MySQL with JDBC",
-        mariadb: "MariaDB with JDBC",
-        sqlite: "SQLite with JDBC"
-      }
-    },
-    "C# .NET Core": {
-      name: "C# .NET Core Web API",
-      features: ["Entity Framework Core", "xUnit testing", "JWT authentication", "Swagger integration"],
-      databases: {
-        postgresql: "PostgreSQL with Npgsql",
-        mysql: "MySQL with Pomelo.EntityFrameworkCore.MySql",
-        mariadb: "MariaDB with Pomelo.EntityFrameworkCore.MySql",
-        sqlite: "SQLite with Microsoft.EntityFrameworkCore.Sqlite"
-      }
-    },
-    "C# ASP.NET Core": {
-      name: "C# ASP.NET Core",
-      features: ["Entity Framework Core", "Identity Framework", "xUnit testing", "SignalR", "Blazor components"],
-      databases: {
-        postgresql: "PostgreSQL with Npgsql",
-        mysql: "MySQL with Pomelo.EntityFrameworkCore.MySql",
-        mariadb: "MariaDB with Pomelo.EntityFrameworkCore.MySql",
-        sqlite: "SQLite with Microsoft.EntityFrameworkCore.Sqlite"
-      }
-    },
-    "Go Gin": {
-      name: "Go Gin framework",
+    "Go": {
+      name: "Go with Gin framework",
       features: ["GORM ORM", "Go testing", "JWT authentication", "Redis integration", "Docker optimization"],
       databases: {
         postgresql: "PostgreSQL with GORM",
         mysql: "MySQL with GORM",
         mariadb: "MariaDB with GORM",
         sqlite: "SQLite with GORM"
-      }
-    },
-    "Go Fiber": {
-      name: "Go Fiber framework",
-      features: ["GORM ORM", "Go testing", "JWT middleware", "High performance", "Swagger integration"],
-      databases: {
-        postgresql: "PostgreSQL with GORM",
-        mysql: "MySQL with GORM", 
-        mariadb: "MariaDB with GORM",
-        sqlite: "SQLite with GORM"
-      }
-    },
-    "Go Echo": {
-      name: "Go Echo framework",
-      features: ["GORM ORM", "Go testing", "JWT middleware", "WebSocket support", "Prometheus metrics"],
-      databases: {
-        postgresql: "PostgreSQL with GORM",
-        mysql: "MySQL with GORM",
-        mariadb: "MariaDB with GORM", 
-        sqlite: "SQLite with GORM"
-      }
-    },
-    "PHP Laravel": {
-      name: "PHP Laravel",
-      features: ["Eloquent ORM", "PHPUnit testing", "Laravel Passport", "Queue jobs", "Artisan commands"],
-      databases: {
-        postgresql: "PostgreSQL with pdo_pgsql",
-        mysql: "MySQL with pdo_mysql",
-        mariadb: "MariaDB with pdo_mysql",
-        sqlite: "SQLite with pdo_sqlite"
-      }
-    },
-    "PHP Symfony": {
-      name: "PHP Symfony",
-      features: ["Doctrine ORM", "PHPUnit testing", "Symfony Security", "Messenger component", "API Platform"],
-      databases: {
-        postgresql: "PostgreSQL with Doctrine DBAL",
-        mysql: "MySQL with Doctrine DBAL",
-        mariadb: "MariaDB with Doctrine DBAL",
-        sqlite: "SQLite with Doctrine DBAL"
-      }
-    },
-    "Rust Actix": {
-      name: "Rust Actix Web",
-      features: ["Diesel ORM", "Rust testing", "JWT authentication", "High performance", "Async support"],
-      databases: {
-        postgresql: "PostgreSQL with Diesel",
-        mysql: "MySQL with Diesel",
-        mariadb: "MariaDB with Diesel",
-        sqlite: "SQLite with Diesel"
-      }
-    },
-    "Rust Axum": {
-      name: "Rust Axum framework",
-      features: ["SQLx", "Rust testing", "Tower middleware", "Tokio async", "Serde serialization"],
-      databases: {
-        postgresql: "PostgreSQL with SQLx",
-        mysql: "MySQL with SQLx",
-        mariadb: "MariaDB with SQLx",
-        sqlite: "SQLite with SQLx"
-      }
-    },
-    "Kotlin Spring Boot": {
-      name: "Kotlin Spring Boot",
-      features: ["Spring Data JPA", "Spring Security", "JUnit testing", "Coroutines", "Kotlin DSL"],
-      databases: {
-        postgresql: "PostgreSQL with JDBC",
-        mysql: "MySQL with JDBC",
-        mariadb: "MariaDB with JDBC",
-        sqlite: "SQLite with JDBC"
-      }
-    },
-    "Scala Play": {
-      name: "Scala Play Framework",
-      features: ["Slick ORM", "ScalaTest", "Play authentication", "Akka actors", "JSON handling"],
-      databases: {
-        postgresql: "PostgreSQL with Slick",
-        mysql: "MySQL with Slick",
-        mariadb: "MariaDB with Slick",
-        sqlite: "SQLite with Slick"
-      }
-    },
-    "Elixir Phoenix": {
-      name: "Elixir Phoenix",
-      features: ["Ecto ORM", "ExUnit testing", "Guardian authentication", "LiveView", "PubSub"],
-      databases: {
-        postgresql: "PostgreSQL with Ecto",
-        mysql: "MySQL with Ecto",
-        mariadb: "MariaDB with Ecto",
-        sqlite: "SQLite with Ecto"
-      }
-    },
-    "Node.js Serverless": {
-      name: "Node.js Serverless (AWS Lambda)",
-      features: ["Serverless Framework", "DynamoDB", "API Gateway", "CloudFormation", "Jest testing"],
-      databases: {
-        postgresql: "PostgreSQL with RDS",
-        mysql: "MySQL with RDS",
-        mariadb: "MariaDB with RDS",
-        sqlite: "SQLite (not recommended for serverless)"
-      }
-    },
-    "Python Serverless": {
-      name: "Python Serverless (AWS Lambda)",
-      features: ["Serverless Framework", "DynamoDB", "API Gateway", "boto3", "pytest testing"],
-      databases: {
-        postgresql: "PostgreSQL with RDS",
-        mysql: "MySQL with RDS", 
-        mariadb: "MariaDB with RDS",
-        sqlite: "SQLite (not recommended for serverless)"
-      }
-    },
-    "Go Serverless": {
-      name: "Go Serverless (AWS Lambda)",
-      features: ["AWS SDK", "DynamoDB", "API Gateway", "CloudFormation", "Go testing"],
-      databases: {
-        postgresql: "PostgreSQL with RDS",
-        mysql: "MySQL with RDS",
-        mariadb: "MariaDB with RDS", 
-        sqlite: "SQLite (not recommended for serverless)"
-      }
-    },
-    "Node.js Microservices": {
-      name: "Node.js Microservices",
-      features: ["Express/Fastify", "Docker", "Kubernetes", "Message queues", "Service discovery"],
-      databases: {
-        postgresql: "PostgreSQL with connection pooling",
-        mysql: "MySQL with connection pooling",
-        mariadb: "MariaDB with connection pooling",
-        sqlite: "SQLite (not recommended for microservices)"
-      }
-    },
-    "Java Microservices": {
-      name: "Java Spring Boot Microservices",
-      features: ["Spring Cloud", "Docker", "Kubernetes", "Eureka", "Config Server"],
-      databases: {
-        postgresql: "PostgreSQL with HikariCP",
-        mysql: "MySQL with HikariCP",
-        mariadb: "MariaDB with HikariCP",
-        sqlite: "SQLite (not recommended for microservices)"
-      }
-    },
-    "Python Microservices": {
-      name: "Python Microservices",
-      features: ["FastAPI/Flask", "Docker", "Kubernetes", "Celery", "Service mesh"],
-      databases: {
-        postgresql: "PostgreSQL with connection pooling",
-        mysql: "MySQL with connection pooling",
-        mariadb: "MariaDB with connection pooling",
-        sqlite: "SQLite (not recommended for microservices)"
-      }
-    },
-    "Go Microservices": {
-      name: "Go Microservices",
-      features: ["gRPC", "Docker", "Kubernetes", "Consul", "Prometheus"],
-      databases: {
-        postgresql: "PostgreSQL with pgxpool",
-        mysql: "MySQL with connection pooling",
-        mariadb: "MariaDB with connection pooling",
-        sqlite: "SQLite (not recommended for microservices)"
       }
     },
   },
