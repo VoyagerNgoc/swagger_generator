@@ -5,9 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Code, Loader2, Github, Server, Monitor, Layers } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
-import { BACKEND_FRAMEWORKS, FRONTEND_FRAMEWORKS } from "@/lib/constants"
+import { BACKEND_FRAMEWORKS, FRONTEND_FRAMEWORKS, DATABASE_OPTIONS } from "@/lib/constants"
 import GitHubRepoSelector from "./github-repo-selector"
-import DatabaseSelector from "./database-selector"
 
 interface FrameworkSelectorProps {
   backendFramework: string
@@ -133,20 +132,41 @@ export default function FrameworkSelector({
               Backend Configuration
             </h3>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Backend Framework</label>
-              <Select value={backendFramework} onValueChange={onBackendChange} disabled={disabled || !generateBackend}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select backend framework" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BACKEND_FRAMEWORKS.map((framework) => (
-                    <SelectItem key={framework} value={framework}>
-                      {framework}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Backend Framework</label>
+                <Select value={backendFramework} onValueChange={onBackendChange} disabled={disabled || !generateBackend}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select backend framework" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BACKEND_FRAMEWORKS.map((framework) => (
+                      <SelectItem key={framework} value={framework}>
+                        {framework}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Database</label>
+                <Select value={database} onValueChange={onDatabaseChange} disabled={disabled || !generateBackend}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select database" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DATABASE_OPTIONS.map((db) => (
+                      <SelectItem key={db.value} value={db.value}>
+                        <div className="flex items-center gap-2">
+                          <span>{db.icon}</span>
+                          <span>{db.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <GitHubRepoSelector
@@ -188,17 +208,6 @@ export default function FrameworkSelector({
             />
           </div>
         </div>
-
-        {/* Database Selection - Only show when backend is selected */}
-        {generateBackend && (
-          <div className="transition-all duration-200">
-            <DatabaseSelector
-              value={database}
-              onChange={onDatabaseChange}
-              disabled={disabled}
-            />
-          </div>
-        )}
 
         <div className="pt-4 border-t">
           <Button
