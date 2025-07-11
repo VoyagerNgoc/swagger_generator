@@ -338,3 +338,6 @@ export interface CodeGenJob {
   error?: string
   progress?: number
 }
+
+  }
+}
