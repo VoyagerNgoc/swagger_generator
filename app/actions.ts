@@ -715,6 +715,8 @@ export async function checkCodeGenJobStatus(jobId: string): Promise<CodeGenJob |
 
     const data = await response.json()
 
+    console.log("CodeGen API response for job", jobId, ":", data)
+
     // Map the API response to our CodeGenJob interface
     return {
       id: jobId,
@@ -738,21 +740,27 @@ function mapApiStatusToJobStatus(apiStatus: string): "loading_processing" | "run
     case "pending":
     case "queued":
     case "waiting":
+    case "created":
+    case "submitted":
       return "loading_processing"
     case "running":
     case "in_progress":
     case "processing":
+    case "executing":
       return "running"
     case "completed":
     case "success":
     case "finished":
     case "done":
+    case "successful":
       return "completed"
     case "failed":
     case "error":
     case "cancelled":
+    case "canceled":
       return "failed"
     default:
+      console.log("Unknown API status:", apiStatus)
       return "loading_processing"
   }
 }

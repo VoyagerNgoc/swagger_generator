@@ -72,13 +72,14 @@ export default function CodeGenJobTracker({
       if (allJobsCompleted) {
         setIsPolling(false)
         clearInterval(interval)
+        console.log("All jobs completed, stopping polling")
       } else {
         pollJobs()
       }
-    }, 5000) // Poll every 5 seconds
+    }, 3000) // Poll every 3 seconds for faster updates
 
     return () => clearInterval(interval)
-  }, [backendJobId, frontendJobId, backendFramework, frontendFramework, database, toast])
+  }, [backendJobId, frontendJobId, backendFramework, frontendFramework, database, toast, backendJob, frontendJob])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
