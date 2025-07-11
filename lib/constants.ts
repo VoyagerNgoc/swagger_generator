@@ -1,19 +1,10 @@
 // Framework definitions
 export const BACKEND_FRAMEWORKS = [
   "Ruby on Rails",
-  "Node.js Express",
-  "Python Django",
-  "Python FastAPI",
-  "Python Flask",
   "PHP Laravel 11",
   "PHP Laravel 12",
-  "PHP Symfony",
-  "Rust Actix",
-  "Rust Axum",
-  "Kotlin Spring Boot",
-  "Go Gin",
-  "Go Fiber",
-  "Go Echo",
+  "Django (Python)",
+  "Go (Gin framework)",
 ]
 
 export const FRONTEND_FRAMEWORKS = [
@@ -73,6 +64,8 @@ export const BASE_PROMPTS = {
   backend: {
     prefix: "Generate a complete, production-ready",
     suffix: (includeDocker: boolean) => `application based on the Swagger specification provided below. The application should include:
+
+CORE REQUIREMENTS:
 - Comprehensive test suite (unit and integration tests)
 - Include API versioning strategy
 - Unit tests for all business logic
@@ -81,7 +74,39 @@ export const BASE_PROMPTS = {
 - CI/CD pipeline configuration
 - Production-ready configuration
 - Database seeding scripts
-- API documentation (Swagger/OpenAPI integration)`,
+- API documentation (Swagger/OpenAPI integration)
+- ${includeDocker ? 'Docker configuration (Dockerfile and docker-compose.yml)' : 'Local development setup and configuration'}
+- Environment configuration and secrets management
+
+${includeDocker ? `DOCKER REQUIREMENTS:
+- Complete Docker setup with Dockerfile and docker-compose.yml
+- Multi-stage builds for production optimization
+- Database service configuration in docker-compose
+- Health checks for all services
+- Container monitoring and logging` : `LOCAL DEVELOPMENT REQUIREMENTS:
+- Local development environment setup
+- Database installation and configuration instructions
+- Local dependencies installation guide
+- Development server configuration`}
+
+TECHNICAL REQUIREMENTS:
+- RESTful API design principles
+- Input validation and sanitization
+- Error handling and logging
+- Authentication and authorization
+- Rate limiting and security middleware
+- Database migrations and seeders
+- Background job processing
+- Caching strategy implementation
+- Monitoring and health checks
+
+${includeDocker ? `DEPLOYMENT & CONTAINERIZATION:
+- Docker images optimized for production
+- Container orchestration ready
+- CI/CD pipeline configuration with Docker` : `DEPLOYMENT & SETUP:
+- Local installation instructions
+- Environment-specific configurations
+- CI/CD pipeline configuration for local deployment`}`,
   },
   frontend: {
     prefix: "Generate a complete, professional-grade",
@@ -97,7 +122,7 @@ CORE REQUIREMENTS:
 - Form validation and user feedback
 - Loading states and error boundaries
 - Comprehensive component library
-- Docker configuration (Dockerfile and docker-compose.yml)
+- ${includeDocker ? 'Docker configuration (Dockerfile and docker-compose.yml)' : 'Local development setup and configuration'}
 - Environment configuration
 - Build optimization and deployment setup
 
@@ -116,6 +141,32 @@ TECHNICAL REQUIREMENTS:
 - Security best practices (XSS, CSRF protection)
 - Image optimization
 
+${includeDocker ? `DOCKER REQUIREMENTS:
+- Complete Docker setup with Dockerfile and docker-compose.yml
+- Multi-stage builds for production optimization
+- Static file serving configuration
+- Container health checks
+- Production-ready containerization` : `LOCAL DEVELOPMENT REQUIREMENTS:
+- Local development environment setup
+- Node.js and dependencies installation guide
+- Local build and development server configuration
+- Environment variables setup`}
+
+${includeDocker ? `DEPLOYMENT & CONTAINERIZATION:
+- Docker images optimized for production
+- Static file serving and CDN integration
+- Container orchestration ready
+- CI/CD pipeline configuration with Docker` : `DEPLOYMENT & SETUP:
+- Local build and deployment instructions
+- Static hosting configuration
+- CI/CD pipeline configuration for local deployment`}`,
+  },
+}
+
+export const FRAMEWORK_CONFIGS = {
+  backend: {
+    "Ruby on Rails": {
+      name: "Ruby on Rails 8",
       features: ["ActiveRecord ORM", "RSpec testing", "Devise authentication", "Sidekiq background jobs"],
       databases: {
         postgresql: "PostgreSQL with pg gem",
@@ -144,17 +195,7 @@ TECHNICAL REQUIREMENTS:
         sqlite: "SQLite with pdo_sqlite"
       }
     },
-    "Node.js Express": {
-      name: "Node.js Express",
-      features: ["TypeScript", "Prisma ORM", "Jest testing", "JWT authentication", "Redis caching"],
-      databases: {
-        postgresql: "PostgreSQL with Prisma",
-        mysql: "MySQL with Prisma",
-        mariadb: "MariaDB with Prisma", 
-        sqlite: "SQLite with Prisma"
-      }
-    },
-    "Python Django": {
+    "Django (Python)": {
       name: "Python Django",
       features: ["Django REST Framework", "PostgreSQL", "Celery", "pytest testing", "Django authentication"],
       databases: {
@@ -164,33 +205,7 @@ TECHNICAL REQUIREMENTS:
         sqlite: "SQLite (built-in)"
       }
     },
-    "Python FastAPI": {
-      name: "Python FastAPI",
-      features: ["SQLAlchemy ORM", "Pydantic validation", "pytest testing", "OAuth2 authentication", "Async support"],
-      databases: {
-        postgresql: "PostgreSQL with asyncpg",
-        mysql: "MySQL with aiomysql",
-        mariadb: "MariaDB with aiomysql",
-        sqlite: "SQLite with aiosqlite"
-      }
-    },
-    "Python Flask": {
-      name: "Python Flask",
-      features: [
-        "SQLAlchemy ORM",
-        "Flask-RESTful",
-        "pytest testing",
-        "JWT authentication",
-        "Marshmallow serialization",
-      ],
-      databases: {
-        postgresql: "PostgreSQL with psycopg2",
-        mysql: "MySQL with PyMySQL",
-        mariadb: "MariaDB with PyMySQL",
-        sqlite: "SQLite (built-in)"
-      }
-    },
-    "Go Gin": {
+    "Go (Gin framework)": {
       name: "Go Gin framework",
       features: ["GORM ORM", "Go testing", "JWT authentication", "Redis integration", "Docker optimization"],
       databases: {
@@ -198,66 +213,6 @@ TECHNICAL REQUIREMENTS:
         mysql: "MySQL with GORM",
         mariadb: "MariaDB with GORM",
         sqlite: "SQLite with GORM"
-      }
-    },
-    "Go Fiber": {
-      name: "Go Fiber framework",
-      features: ["GORM ORM", "Go testing", "JWT middleware", "High performance", "Swagger integration"],
-      databases: {
-        postgresql: "PostgreSQL with GORM",
-        mysql: "MySQL with GORM", 
-        mariadb: "MariaDB with GORM",
-        sqlite: "SQLite with GORM"
-      }
-    },
-    "Go Echo": {
-      name: "Go Echo framework",
-      features: ["GORM ORM", "Go testing", "JWT middleware", "WebSocket support", "Prometheus metrics"],
-      databases: {
-        postgresql: "PostgreSQL with GORM",
-        mysql: "MySQL with GORM",
-        mariadb: "MariaDB with GORM", 
-        sqlite: "SQLite with GORM"
-      }
-    },
-    "PHP Symfony": {
-      name: "PHP Symfony",
-      features: ["Doctrine ORM", "PHPUnit testing", "Symfony Security", "Messenger component", "API Platform"],
-      databases: {
-        postgresql: "PostgreSQL with Doctrine DBAL",
-        mysql: "MySQL with Doctrine DBAL",
-        mariadb: "MariaDB with Doctrine DBAL",
-        sqlite: "SQLite with Doctrine DBAL"
-      }
-    },
-    "Rust Actix": {
-      name: "Rust Actix Web",
-      features: ["Diesel ORM", "Rust testing", "JWT authentication", "High performance", "Async support"],
-      databases: {
-        postgresql: "PostgreSQL with Diesel",
-        mysql: "MySQL with Diesel",
-        mariadb: "MariaDB with Diesel",
-        sqlite: "SQLite with Diesel"
-      }
-    },
-    "Rust Axum": {
-      name: "Rust Axum framework",
-      features: ["SQLx", "Rust testing", "Tower middleware", "Tokio async", "Serde serialization"],
-      databases: {
-        postgresql: "PostgreSQL with SQLx",
-        mysql: "MySQL with SQLx",
-        mariadb: "MariaDB with SQLx",
-        sqlite: "SQLite with SQLx"
-      }
-    },
-    "Kotlin Spring Boot": {
-      name: "Kotlin Spring Boot",
-      features: ["Spring Data JPA", "Spring Security", "JUnit testing", "Coroutines", "Kotlin DSL"],
-      databases: {
-        postgresql: "PostgreSQL with JDBC",
-        mysql: "MySQL with JDBC",
-        mariadb: "MariaDB with JDBC",
-        sqlite: "SQLite with JDBC"
       }
     },
   },
@@ -337,7 +292,4 @@ export interface CodeGenJob {
   repositoryUrl?: string
   error?: string
   progress?: number
-}
-
-  }
 }
