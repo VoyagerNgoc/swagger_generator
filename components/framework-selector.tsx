@@ -3,10 +3,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Code, Loader2, Github, Server, Monitor, Layers } from "lucide-react"
+import { Code, Loader2, Github, Server, Monitor, Layers, Edit, Save, X } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
 import { BACKEND_FRAMEWORKS, FRONTEND_FRAMEWORKS, DATABASE_OPTIONS } from "@/lib/constants"
 import GitHubRepoSelector from "./github-repo-selector"
+import { useState, useEffect } from "react"
 
 interface FrameworkSelectorProps {
   backendFramework: string
@@ -17,6 +19,7 @@ interface FrameworkSelectorProps {
   generateBackend: boolean
   generateFrontend: boolean
   includeDocker: boolean
+  swaggerSpec: string
   onBackendChange: (value: string) => void
   onFrontendChange: (value: string) => void
   onDatabaseChange: (value: string) => void
@@ -25,6 +28,7 @@ interface FrameworkSelectorProps {
   onGenerateBackendChange: (value: boolean) => void
   onGenerateFrontendChange: (value: boolean) => void
   onIncludeDockerChange: (value: boolean) => void
+  onSwaggerChange: (value: string) => void
   onSubmit: () => void
   isSubmitting: boolean
   disabled: boolean
@@ -39,6 +43,7 @@ export default function FrameworkSelector({
   generateBackend,
   generateFrontend,
   includeDocker,
+  swaggerSpec,
   onBackendChange,
   onFrontendChange,
   onDatabaseChange,
@@ -47,13 +52,32 @@ export default function FrameworkSelector({
   onGenerateBackendChange,
   onGenerateFrontendChange,
   onIncludeDockerChange,
+  onSwaggerChange,
   onSubmit,
   isSubmitting,
   disabled,
 }: FrameworkSelectorProps) {
+  const [isEditingSwagger, setIsEditingSwagger] = useState(false)
+  const [editedSwagger, setEditedSwagger] = useState(swaggerSpec)
+
+  // Update edited swagger when prop changes
+  useEffect(() => {
+    setEditedSwagger(swaggerSpec)
+  }, [swaggerSpec])
+
   const isBackendValid = !generateBackend || (backendFramework && database && backendRepo)
   const isFrontendValid = !generateFrontend || (frontendFramework && frontendRepo)
   const isFormValid = (generateBackend || generateFrontend) && isBackendValid && isFrontendValid
+
+  const handleSaveSwagger = () => {
+    onSwaggerChange(editedSwagger)
+    setIsEditingSwagger(false)
+  }
+
+  const handleCancelEdit = () => {
+    setEditedSwagger(swaggerSpec)
+    setIsEditingSwagger(false)
+  }
 
   const getButtonText = () => {
     if (generateBackend && generateFrontend) return 'Generate Backend & Frontend'
@@ -72,6 +96,63 @@ export default function FrameworkSelector({
         <CardDescription>Choose your preferred frameworks, database, and target repositories for code generation</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Swagger Specification Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              Swagger Specification
+            </h3>
+            {!isEditingSwagger && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditingSwagger(true)}
+                disabled={disabled}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Swagger
+              </Button>
+            )}
+          </div>
+
+          {isEditingSwagger ? (
+            <div className="space-y-3">
+              <Textarea
+                value={editedSwagger}
+                onChange={(e) => setEditedSwagger(e.target.value)}
+                className="min-h-[200px] font-mono text-sm"
+                placeholder="Edit your Swagger specification here..."
+                disabled={disabled}
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleSaveSwagger}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  disabled={disabled}
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  size="sm"
+                  disabled={disabled}
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border max-h-[200px] overflow-y-auto">
+              <pre className="text-sm font-mono whitespace-pre-wrap">{swaggerSpec}</pre>
+            </div>
+          )}
+        </div>
+
         {/* Generation Options */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">

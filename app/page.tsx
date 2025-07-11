@@ -413,6 +413,7 @@ export default function Home() {
             generateBackend={generateBackend}
             generateFrontend={generateFrontend}
             includeDocker={includeDocker}
+            swaggerSpec={swaggerSpec}
             onBackendChange={setBackendFramework}
             onFrontendChange={setFrontendFramework}
             onDatabaseChange={setDatabase}
@@ -421,6 +422,7 @@ export default function Home() {
             onGenerateBackendChange={setGenerateBackend}
             onGenerateFrontendChange={setGenerateFrontend}
             onIncludeDockerChange={setIncludeDocker}
+            onSwaggerChange={setSwaggerSpec}
             onSubmit={handleSubmitToCodeGen}
             isSubmitting={isSubmittingToCodeGen}
             disabled={hasSubmittedToCodeGen}
