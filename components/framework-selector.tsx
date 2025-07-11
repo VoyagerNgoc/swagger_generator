@@ -112,7 +112,7 @@ export default function FrameworkSelector({
                 disabled={disabled}
               />
               <div className="flex items-center gap-2">
-                <Container className="h-4 w-4 text-purple-600" />
+                <Code className="h-4 w-4 text-purple-600" />
                 <label htmlFor="include-docker" className="text-sm font-medium cursor-pointer">
                   Include Docker
                 </label>
