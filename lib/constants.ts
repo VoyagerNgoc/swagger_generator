@@ -72,35 +72,9 @@ export const DATABASE_OPTIONS = [
 export const BASE_PROMPTS = {
   backend: {
     prefix: "Generate a complete, production-ready",
-    suffix: `application based on the Swagger specification provided below. The application should include:
-
-CORE REQUIREMENTS:
-- Complete implementation of all API endpoints from the Swagger specification
-- Proper project structure following framework best practices
-- Database models/entities with appropriate relationships and validations
-- Controllers/handlers with proper request/response handling
-- Authentication and authorization implementation
-- Input validation and error handling
+    suffix: (includeDocker: boolean) => `application based on the Swagger specification provided below. The application should include:
 - Comprehensive test suite (unit and integration tests)
-- Docker configuration (Dockerfile and docker-compose.yml)
-- Environment configuration and secrets management
-- API documentation integration
-- Logging and monitoring setup
-- Health check endpoints
-
-TECHNICAL REQUIREMENTS:
-- Follow RESTful API conventions
-- Implement proper HTTP status codes
-- Use appropriate design patterns (Repository, Service, etc.)
-- Include database migrations/schema setup
-- Implement proper CORS configuration
-- Add rate limiting and security middleware
 - Include API versioning strategy
-- Implement proper exception handling
-- Add request/response logging
-- Include performance optimization
-
-TESTING & DEPLOYMENT:
 - Unit tests for all business logic
 - Integration tests for API endpoints
 - Test fixtures and mock data
@@ -111,7 +85,7 @@ TESTING & DEPLOYMENT:
   },
   frontend: {
     prefix: "Generate a complete, professional-grade",
-    suffix: `application based on the Swagger specification provided below. The application should include:
+    suffix: (includeDocker: boolean) => `application based on the Swagger specification provided below. The application should include:
 
 CORE REQUIREMENTS:
 - Complete UI implementation for all API endpoints from the Swagger specification
@@ -140,34 +114,8 @@ TECHNICAL REQUIREMENTS:
 - Proper error handling and user feedback
 - API caching and optimization
 - Security best practices (XSS, CSRF protection)
-
-STYLING & COMPONENTS:
-- Modern CSS framework integration (Tailwind CSS preferred)
-- Reusable component architecture
-- Design system implementation
-- Animation and micro-interactions
-- Consistent spacing and typography
-- Icon library integration
 - Image optimization
-- Responsive breakpoints
 
-TESTING & DEPLOYMENT:
-- Component testing (Jest, Testing Library)
-- E2E testing setup (Cypress/Playwright)
-- Visual regression testing
-- Performance testing
-- Build optimization
-- Static analysis and linting
-- CI/CD pipeline configuration
-- Production deployment configuration`,
-  },
-}
-
-// Framework-specific configurations with database support
-export const FRAMEWORK_CONFIGS = {
-  backend: {
-    "Ruby on Rails": {
-      name: "Ruby on Rails 8",
       features: ["ActiveRecord ORM", "RSpec testing", "Devise authentication", "Sidekiq background jobs"],
       databases: {
         postgresql: "PostgreSQL with pg gem",

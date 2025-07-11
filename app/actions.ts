@@ -314,6 +314,7 @@ function generatePrompt(
   swaggerSpec: string,
   database?: string,
   repository?: string,
+  includeDocker: boolean = true,
 ): string {
   // Special handling for Laravel frameworks
   if (framework === "PHP Laravel 11" || framework === "PHP Laravel 12") {
@@ -323,6 +324,30 @@ function generatePrompt(
                         database === "sqlite" ? "SQLite" : "MySQL 8.0+"
     
     const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
+    
+    const dockerSection = includeDocker ? `    - Fully dockerized:
+        - PHP 8.3+ FPM
+        - ${databaseName}
+        - Composer
+    - No Nginx needed for development` : `    - Local development setup`
+    
+    const setupInstructions = includeDocker ? `    - How to run with docker-compose up -d --build
+    - Manual step after container is running:
+        - Run php artisan migrate --force
+        - Run generate key
+        - Run seed` : `    - How to setup local development environment
+    - Manual steps for local setup:
+        - Install PHP 8.3+, Composer, ${databaseName}
+        - Run composer install
+        - Copy .env.example to .env
+        - Run php artisan key:generate
+        - Configure database connection in .env
+        - Run php artisan migrate --force
+        - Run php artisan db:seed`
+    
+    const successCriteria = includeDocker ? `    - docker-compose up --build runs successfully, app available at http://localhost:9000/
+    - No manual steps except migrations` : `    - Local development environment setup successfully
+    - App available at http://localhost:9000/ via php artisan serve`
     
     return `In the repository ${repository}, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
 
@@ -404,7 +429,7 @@ DATABASE CONFIGURATION:
 
   const featuresText = config.features.length > 0 ? `\n- ${config.features.join("\n- ")}` : ""
 
-  const prompt = `${basePrompt.prefix} ${config.name} ${basePrompt.suffix}
+  const prompt = `${basePrompt.prefix} ${config.name} ${basePrompt.suffix(includeDocker)}
 
 FRAMEWORK-SPECIFIC FEATURES:${featuresText}${databaseInstruction}${repositoryInstruction}
 
@@ -447,7 +472,7 @@ export async function generateCodeWithCodeGen(
 
     // Generate backend if requested
     if (frameworks.generateBackend) {
-      const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.database, frameworks.backendRepo)
+      const backendPrompt = generatePrompt("backend", frameworks.backend, swaggerSpec, frameworks.database, frameworks.backendRepo, frameworks.includeDocker)
 
       const backendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
         method: "POST",
