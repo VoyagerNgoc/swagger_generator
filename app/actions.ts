@@ -324,7 +324,7 @@ function generatePrompt(
     
     const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
     
-    return `In the repository laravel${laravelVersion}-api-template, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
+    return `In the repository ${repository}, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
 
 1. Update rule: This is an implement new feature — do not overwrite current Dockerfile, docker-compose if not need (IMPORTANT).
 2. Manual step required:  run migrations and generate key manually after container is running.
@@ -359,7 +359,7 @@ function generatePrompt(
 This is swagger documents:
 ${swaggerSpec}
 
-repo: ${repository || 'laravel' + laravelVersion + '-api-template'}`
+repo: ${repository}`
   }
 
   const config = FRAMEWORK_CONFIGS[type][framework]
