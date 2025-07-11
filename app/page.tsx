@@ -40,6 +40,7 @@ export default function Home() {
   const [swaggerMode, setSwaggerMode] = useState<"generate" | "upload">("generate")
   const [generateBackend, setGenerateBackend] = useState(true)
   const [generateFrontend, setGenerateFrontend] = useState(true)
+  const [includeDocker, setIncludeDocker] = useState(true)
 
   useEffect(() => {
     // Check which AI provider is being used
@@ -194,6 +195,7 @@ export default function Home() {
     setSwaggerMode("generate")
     setGenerateBackend(true)
     setGenerateFrontend(true)
+    setIncludeDocker(true)
   }
 
   const handleSubmitToCodeGen = async () => {
