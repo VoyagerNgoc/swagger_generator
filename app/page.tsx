@@ -417,6 +417,8 @@ export default function Home() {
             onFrontendRepoChange={setFrontendRepo}
             onGenerateBackendChange={setGenerateBackend}
             onGenerateFrontendChange={setGenerateFrontend}
+            includeDocker={includeDocker}
+            onIncludeDockerChange={setIncludeDocker}
             onSubmit={handleSubmitToCodeGen}
             isSubmitting={isSubmittingToCodeGen}
             disabled={hasSubmittedToCodeGen}
