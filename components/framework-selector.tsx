@@ -75,7 +75,7 @@ export default function FrameworkSelector({
             <Layers className="h-4 w-4" />
             Generation Options
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center space-x-3 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
               <Checkbox
                 id="generate-backend"
@@ -101,6 +101,20 @@ export default function FrameworkSelector({
                 <Monitor className="h-4 w-4 text-green-600" />
                 <label htmlFor="generate-frontend" className="text-sm font-medium cursor-pointer">
                   Generate Frontend
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-4 border rounded-lg bg-purple-50 dark:bg-purple-950/20">
+              <Checkbox
+                id="include-docker"
+                checked={includeDocker}
+                onCheckedChange={onIncludeDockerChange}
+                disabled={disabled}
+              />
+              <div className="flex items-center gap-2">
+                <Container className="h-4 w-4 text-purple-600" />
+                <label htmlFor="include-docker" className="text-sm font-medium cursor-pointer">
+                  Include Docker
                 </label>
               </div>
             </div>

@@ -373,6 +373,7 @@ export interface FrameworkOptions {
   frontendRepo?: string
   generateBackend?: boolean
   generateFrontend?: boolean
+  includeDocker?: boolean
 }
 
 export interface CodeGenJob {

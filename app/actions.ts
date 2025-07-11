@@ -471,7 +471,7 @@ export async function generateCodeWithCodeGen(
 
     // Generate frontend if requested
     if (frameworks.generateFrontend) {
-      const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, undefined, frameworks.frontendRepo)
+      const frontendPrompt = generatePrompt("frontend", frameworks.frontend, swaggerSpec, undefined, frameworks.frontendRepo, frameworks.includeDocker)
 
       const frontendResponse = await fetch(`https://api.codegen.com/v1/organizations/${orgId}/agent/run`, {
         method: "POST",
