@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { enhancePrompt, generateSwaggerAPI, sendSwaggerToN8n, generateCodeWithCodeGen } from "./actions"
-import { Loader2, CheckCircle, Edit, Save, Download, Send, RefreshCw, Upload } from "lucide-react"
+import { Loader2, CheckCircle, Edit, Save, Download, Send, RefreshCw, Upload, X } from "lucide-react"
 import SuggestionLabels from "@/components/suggestion-labels"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useToast } from "@/hooks/use-toast"
@@ -41,6 +41,8 @@ export default function Home() {
   const [generateBackend, setGenerateBackend] = useState(true)
   const [generateFrontend, setGenerateFrontend] = useState(true)
   const [includeDocker, setIncludeDocker] = useState(true)
+  const [isEditingSwagger, setIsEditingSwagger] = useState(false)
+  const [editedSwagger, setEditedSwagger] = useState("")
 
   useEffect(() => {
     // Check which AI provider is being used
@@ -187,6 +189,8 @@ export default function Home() {
     setIsEditing(false)
     setCodeGenJobIds(null)
     setHasSubmittedToCodeGen(false)
+    setIsEditingSwagger(false)
+    setEditedSwagger("")
     setBackendFramework("Ruby on Rails")
     setFrontendFramework("Next.js")
     setDatabase("postgresql")
@@ -249,6 +253,26 @@ export default function Home() {
   const handleSwaggerLoaded = (swagger: string) => {
     setSwaggerSpec(swagger)
     setShowPromptInput(false)
+  }
+
+  const handleEditSwagger = () => {
+    setEditedSwagger(swaggerSpec)
+    setIsEditingSwagger(true)
+  }
+
+  const handleSaveSwagger = () => {
+    setSwaggerSpec(editedSwagger)
+    setIsEditingSwagger(false)
+    toast({
+      variant: "success",
+      title: "Success",
+      description: "Swagger specification updated successfully",
+    })
+  }
+
+  const handleCancelSwaggerEdit = () => {
+    setEditedSwagger("")
+    setIsEditingSwagger(false)
   }
 
   return (
@@ -436,6 +460,15 @@ export default function Home() {
                 {swaggerMode === "upload" ? "Uploaded" : "Generated"} Swagger API Specification
               </h2>
               <div className="flex flex-wrap gap-2 items-center">
+                <Button
+                  variant="outline"
+                  onClick={handleEditSwagger}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                  disabled={hasSubmittedToCodeGen}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Swagger
+                </Button>
                 {/* Hidden n8n button - keeping the function for potential future use */}
                 {false && (
                   <Button
@@ -474,7 +507,43 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            <SwaggerDisplay yamlContent={swaggerSpec} />
+            {isEditingSwagger ? (
+              <Card className="shadow-lg border-none bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Edit className="h-5 w-5" />
+                    Edit Swagger Specification
+                  </CardTitle>
+                  <CardDescription>Make changes to your Swagger specification</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={editedSwagger}
+                    onChange={(e) => setEditedSwagger(e.target.value)}
+                    className="min-h-[400px] font-mono text-sm"
+                    placeholder="Edit your Swagger specification here..."
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleSaveSwagger}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelSwaggerEdit}
+                    >
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <SwaggerDisplay yamlContent={swaggerSpec} />
+            )}
           </div>
         )}
 
