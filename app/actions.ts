@@ -325,31 +325,9 @@ function generatePrompt(
     
     const laravelVersion = framework === "PHP Laravel 11" ? "11" : "12"
     
-    const dockerSection = includeDocker ? `    - Fully dockerized:
-        - PHP 8.3+ FPM
-        - ${databaseName}
-        - Composer
-    - No Nginx needed for development` : `    - Local development setup`
-    
-    const setupInstructions = includeDocker ? `    - How to run with docker-compose up -d --build
-    - Manual step after container is running:
-        - Run php artisan migrate --force
-        - Run generate key
-        - Run seed` : `    - How to setup local development environment
-    - Manual steps for local setup:
-        - Install PHP 8.3+, Composer, ${databaseName}
-        - Run composer install
-        - Copy .env.example to .env
-        - Run php artisan key:generate
-        - Configure database connection in .env
-        - Run php artisan migrate --force
-        - Run php artisan db:seed`
-    
-    const successCriteria = includeDocker ? `    - docker-compose up --build runs successfully, app available at http://localhost:9000/
-    - No manual steps except migrations` : `    - Local development environment setup successfully
-    - App available at http://localhost:9000/ via php artisan serve`
-    
-    return `In the repository ${repository}, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
+    if (includeDocker) {
+      // Original Docker prompt
+      return `In the repository ${repository}, please implement fully functional Laravel ${laravelVersion} PHP RESTful API backend based on the provided Swagger documentation with new branch and new pull-request.
 
 1. Update rule: This is an implement new feature — do not overwrite current Dockerfile, docker-compose if not need (IMPORTANT).
 2. Manual step required:  run migrations and generate key manually after container is running.
@@ -385,6 +363,45 @@ This is swagger documents:
 ${swaggerSpec}
 
 repo: ${repository}`
+    } else {
+      // Non-Docker prompt
+      return `Please implement a fully functional Laravel ${laravelVersion} PHP RESTful API backend in the repository ${repository} based on the provided Swagger documentation, using a new branch and creating a new pull request.
+
+Requirements Important Note (DO NOT CREATE DOCKER FILES): This task is to implement a new feature. Do not create Dockerfile, docker-compose.yml, or any Docker-related setup unless absolutely necessary. It must run on local environment.
+
+Scope:
+
+Laravel ${laravelVersion} API-only project Implement all API endpoints and documentation based on Swagger Project must run correctly in: PHP 8.3+ FPM ${databaseName} Composer No Nginx required for development Health Check Route: /api/ping returns { "status": "ok" }
+
+README.md must include: How to run Manual post-start steps:
+
+Run migrations
+
+Generate app key
+
+Run seeders
+
+How to run tests
+
+Description of all implemented API endpoints
+
+Success Criteria: App is accessible at http://localhost:9000/ Only manual steps are migrations/key/seed
+
+vendor/autoload.php exists
+
+.env is set correctly
+
+/api/ping returns correct response
+
+No migration conflicts or duplications
+
+All Swagger-documented endpoints are fully implemented
+
+This is swagger documents:
+${swaggerSpec}
+
+repo: ${repository}`
+    }
   }
 
   const config = FRAMEWORK_CONFIGS[type][framework]
