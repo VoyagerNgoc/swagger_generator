@@ -410,6 +410,7 @@ export default function Home() {
             frontendRepo={frontendRepo}
             generateBackend={generateBackend}
             generateFrontend={generateFrontend}
+            includeDocker={includeDocker}
             onBackendChange={setBackendFramework}
             onFrontendChange={setFrontendFramework}
             onDatabaseChange={setDatabase}
@@ -417,7 +418,6 @@ export default function Home() {
             onFrontendRepoChange={setFrontendRepo}
             onGenerateBackendChange={setGenerateBackend}
             onGenerateFrontendChange={setGenerateFrontend}
-            includeDocker={includeDocker}
             onIncludeDockerChange={setIncludeDocker}
             onSubmit={handleSubmitToCodeGen}
             isSubmitting={isSubmittingToCodeGen}

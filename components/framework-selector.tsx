@@ -17,6 +17,7 @@ interface FrameworkSelectorProps {
   frontendRepo: string
   generateBackend: boolean
   generateFrontend: boolean
+  includeDocker: boolean
   onBackendChange: (value: string) => void
   onFrontendChange: (value: string) => void
   onDatabaseChange: (value: string) => void
@@ -24,6 +25,7 @@ interface FrameworkSelectorProps {
   onFrontendRepoChange: (value: string) => void
   onGenerateBackendChange: (value: boolean) => void
   onGenerateFrontendChange: (value: boolean) => void
+  onIncludeDockerChange: (value: boolean) => void
   onSubmit: () => void
   isSubmitting: boolean
   disabled: boolean
@@ -37,6 +39,7 @@ export default function FrameworkSelector({
   frontendRepo,
   generateBackend,
   generateFrontend,
+  includeDocker,
   onBackendChange,
   onFrontendChange,
   onDatabaseChange,
@@ -44,6 +47,7 @@ export default function FrameworkSelector({
   onFrontendRepoChange,
   onGenerateBackendChange,
   onGenerateFrontendChange,
+  onIncludeDockerChange,
   onSubmit,
   isSubmitting,
   disabled,
